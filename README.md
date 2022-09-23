@@ -15,7 +15,3 @@ dll file is in `revive_hypereal\bin\win64`
 -----
 
 PS: you can download hypereal pc sdk from Bugzilla for Firefox:[link](https://bugzilla.mozilla.org/page.cgi?id=splinter.html&ignore=&bug=1378630&attachment=8883821).
-
-Sadly even five years after the manufacturer of hypereal got collapse, the patch still can't get merge into main code.
-
-Whatever, thanks to firefox, it made this driver possible.
