@@ -150,15 +150,13 @@ void Boardcast() {
 	int result=MessageBox(NULL, L"2022/9/22 release1.0。\n\
 更新内容请于Github页面查看\n\
 Created By lixiangwuxian@github\n\
-点击否可打开此驱动Github页面检查更新\n\
-点击是可打开作者的bilibili主页（求三连）\n\
+点击是或否可打开此驱动Github页面检查更新\n\
 什么都不点即可继续使用"\
 , L"提示", MB_YESNO);
 	if (result == IDNO) {
 		ShellExecute(NULL, szOperation, szAddress, NULL, NULL, SW_SHOWNORMAL);
 	}
 	if (result == IDYES) {
-		szAddress = (wchar_t*)L"https://space.bilibili.com/12770378";
 		ShellExecute(NULL, szOperation, szAddress, NULL, NULL, SW_SHOWNORMAL);
 	}
 }

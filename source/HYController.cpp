@@ -172,7 +172,7 @@ void HyController::SendButtonUpdate(HyInputState inputState)
 #ifndef SWITCH_KEY
 	vr::VRDriverInput()->UpdateBooleanComponent(m_system, (bool)((HY_BUTTON_HOME + HY_BUTTON_MENU) & inputState.m_buttons), 0);
 	vr::VRDriverInput()->UpdateBooleanComponent(m_application_menu, (bool)((HY_BUTTON_HOME_LONGPRESS + HY_BUTTON_MENU_LONGPRESS) & inputState.m_buttons), 0);
-#endif // !NO_SWIT
+#endif
 
 	if (inputState.m_indexTrigger > 0.8) {
 		vr::VRDriverInput()->UpdateBooleanComponent(m_trigger, true, 0);
@@ -222,7 +222,7 @@ DriverPose_t HyController::GetPose(HyTrackingState ctrData)
 	m_Pose.vecVelocity[2] = ctrData.m_linearVelocity.z;
 	///m_Pose.vecAngularVelocity[0] = ctrData.m_angularVelocity.x;
 	//m_Pose.vecAngularVelocity[1] = ctrData.m_angularVelocity.y;
-	//m_Pose.vecAngularVelocity[2] = ctrData.m_angularVelocity.z;//Avoid shaking...no idea why
+	//m_Pose.vecAngularVelocity[2] = ctrData.m_angularVelocity.z;//Avoid shaking...these data from sdk is to sharp
 	m_Pose.vecAngularAcceleration[0] = ctrData.m_angularAcceleration.x;
 	m_Pose.vecAngularAcceleration[1] = ctrData.m_angularAcceleration.y;
 	m_Pose.vecAngularAcceleration[2] = ctrData.m_angularAcceleration.z;
