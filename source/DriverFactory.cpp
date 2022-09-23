@@ -1,7 +1,10 @@
 #include "openvr_driver.h"
 #include "ServerDriver.h"
 
+
+
 static std::shared_ptr<ServerDriver> mainServerDirver;
+
 
 extern "C" __declspec(dllexport) void* HmdDriverFactory(const char* InterfaceName, int* ReturnCode) {
 	if (std::strcmp(InterfaceName, vr::IServerTrackedDeviceProvider_Version) == 0) {

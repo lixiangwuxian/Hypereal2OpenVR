@@ -4,6 +4,8 @@
 #include <thread>
 #include "openvr_driver.h"
 #include "Hypereal_VR.h"
+#include <driverlog.h>
+
 
 using namespace vr;
 
@@ -30,6 +32,9 @@ public:
 	void UpdateBattery(int value);
 
 	virtual void* GetComponent(const char* pchComponentNameAndVersion) {
+		if (_stricmp(pchComponentNameAndVersion, ITrackedDeviceServerDriver_Version) == 0) {
+			return static_cast<ITrackedDeviceServerDriver*>(this);
+		}
 		return nullptr;
 	}
 
@@ -40,9 +45,10 @@ private:
 	DriverPose_t GetPose(HyTrackingState ctrData);
 	VRControllerState_t m_ControllerState;
 	vr::DriverPose_t  m_Pose;
-	vr::TrackedDeviceIndex_t m_unObjectId;
+	vr::TrackedDeviceIndex_t VrObjectId;
 	vr::PropertyContainerHandle_t m_ulPropertyContainer;
 
+	//ContolerData Data update To Openvr
 	vr::VRInputComponentHandle_t  m_system;			  // "/input/system/click"
 	vr::VRInputComponentHandle_t  m_grip;		      // "/input/grip/click"
 	vr::VRInputComponentHandle_t  m_grip_value;		  // "/input/grip/value"

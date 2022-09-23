@@ -1,15 +1,15 @@
 #include "HyController.h"
 
-using namespace vr;
+using namespace  vr;
 
-HyController::HyController(std::string std, ETrackedControllerRole type,HyDevice *Device)
+HyController::HyController(std::string id, ETrackedControllerRole type,HyDevice *Device)
 {
 	m_ulPropertyContainer = vr::k_ulInvalidPropertyContainer;
-	m_sSerialNumber = std;
+	m_sSerialNumber = id;
 	if(m_sSerialNumber[0]=='L')
-		m_sModelNumber = "{00HyperealVR00}/rendermodels/hypereal_controller_left";
+		m_sModelNumber = "{revive_hypereal}/rendermodels/hypereal_controller_left";
 	else if(m_sSerialNumber[0]=='R')
-		m_sModelNumber = "{00HyperealVR00}/rendermodels/hypereal_controller_right";
+		m_sModelNumber = "{revive_hypereal}/rendermodels/hypereal_controller_right";
 	m_Type = type;
 	ControllerDevice = Device;
 }
@@ -20,16 +20,41 @@ HyController::~HyController()
 
 EVRInitError HyController::Activate(uint32_t unObjectId)
 {
-	m_unObjectId = unObjectId;
+	VrObjectId = unObjectId;
 	initPos();
-	m_ulPropertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_unObjectId);
+	m_ulPropertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(VrObjectId);
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_SerialNumber_String, m_sSerialNumber.c_str());
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_ModelNumber_String, "ViveMV");
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_RenderModelName_String, m_sModelNumber.c_str());
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_ManufacturerName_String, "HTC");
 	vr::VRProperties()->SetInt32Property(m_ulPropertyContainer, Prop_Axis0Type_Int32, k_eControllerAxis_TrackPad);
 	vr::VRProperties()->SetInt32Property(m_ulPropertyContainer, Prop_Axis1Type_Int32, k_eControllerAxis_Trigger);
-	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_InputProfilePath_String, "{00HyperealVR00}/input/hypereal_controller_profile.json");
+	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_InputProfilePath_String, "{revive_hypereal}/input/hypereal_controller_profile.json");
+
+	if (m_sSerialNumber[0] == 'L') {
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceOff_String, "{revive_hypereal}/icons/hypereal_left_controller_off.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceSearching_String, "{revive_hypereal}/icons/hypereal_left_controller_searching.gif");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceSearchingAlert_String, "{revive_hypereal}/icons/hypereal_left_controller_searching_alert.gif");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceReady_String, "{revive_hypereal}/icons/hypereal_left_controller_ready.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceReadyAlert_String, "{revive_hypereal}/icons/hypereal_left_controller_ready_alert.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceNotReady_String, "{revive_hypereal}/icons/hypereal_left_controller_not_ready.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceStandby_String, "{revive_hypereal}/icons/hypereal_left_controller_ready.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceAlertLow_String, "{revive_hypereal}/icons/hypereal_left_controller_ready_low.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceStandbyAlert_String, "{revive_hypereal}/icons/hypereal_left_controller_ready_alert.png");
+	}
+	else
+	{
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceOff_String, "{revive_hypereal}/icons/hypereal_right_controller_off.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceSearching_String, "{revive_hypereal}/icons/hypereal_right_controller_searching.gif");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceSearchingAlert_String, "{revive_hypereal}/icons/hypereal_right_controller_searching_alert.gif");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceReady_String, "{revive_hypereal}/icons/hypereal_right_controller_ready.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceReadyAlert_String, "{revive_hypereal}/icons/hypereal_right_controller_ready_alert.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceNotReady_String, "{revive_hypereal}/icons/hypereal_right_controller_not_ready.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceStandby_String, "{revive_hypereal}/icons/hypereal_right_controller_ready.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceAlertLow_String, "{revive_hypereal}/icons/hypereal_right_controller_ready_low.png");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceStandbyAlert_String, "{revive_hypereal}/icons/hypereal_right_controller_ready_alert.png");
+	}
+	//ÊÖ±úÀàÐÍ
 	vr::VRProperties()->SetInt32Property(m_ulPropertyContainer, Prop_ControllerRoleHint_Int32, m_Type);
 	ETrackedPropertyError erro;
 	int DevClass = vr::VRProperties()->GetInt32Property(m_ulPropertyContainer, Prop_ControllerRoleHint_Int32, &erro);
@@ -66,13 +91,12 @@ void HyController::InitEventHandler()
 		&m_trackpady, VRScalarType_Absolute, VRScalarUnits_NormalizedTwoSided);
 	//out
 	vr::VRDriverInput()->CreateHapticComponent(m_ulPropertyContainer, "/output/haptic", &m_out_Haptic);
-
 }
 
 
 void HyController::Deactivate()
 {
-	m_unObjectId = k_unTrackedDeviceIndexInvalid;
+	VrObjectId = k_unTrackedDeviceIndexInvalid;
 }
 
 void HyController::EnterStandby()
@@ -103,7 +127,7 @@ void HyController::initPos()
 	m_Pose.shouldApplyHeadModel = false;
 	m_Pose.deviceIsConnected = true;
 
-	m_Pose.poseTimeOffset = -0.016f;
+	m_Pose.poseTimeOffset = 0.0;
 	m_Pose.qWorldFromDriverRotation.w =1.0;
 	m_Pose.qWorldFromDriverRotation.x = 0.0;
 	m_Pose.qWorldFromDriverRotation.y = 0.0;
@@ -112,14 +136,14 @@ void HyController::initPos()
 	m_Pose.vecWorldFromDriverTranslation[1] = 0.0;
 	m_Pose.vecWorldFromDriverTranslation[2] = 0.0;
 
-	m_Pose.qDriverFromHeadRotation.w = 0.940f;
-	m_Pose.qDriverFromHeadRotation.x = 0.342f;
-	m_Pose.qDriverFromHeadRotation.y = 0.0f;
-	m_Pose.qDriverFromHeadRotation.z = 0.0f;
+	m_Pose.qDriverFromHeadRotation.w = 0.94;
+	m_Pose.qDriverFromHeadRotation.x = 0.342;
+	m_Pose.qDriverFromHeadRotation.y = 0.0;
+	m_Pose.qDriverFromHeadRotation.z = 0.0;
 
-	m_Pose.vecDriverFromHeadTranslation[0] = 0.000f;
-	m_Pose.vecDriverFromHeadTranslation[1] = 0.000f;
-	m_Pose.vecDriverFromHeadTranslation[2] = 0.000f;
+	m_Pose.vecDriverFromHeadTranslation[0] = 0.000;
+	m_Pose.vecDriverFromHeadTranslation[1] = 0.000;
+	m_Pose.vecDriverFromHeadTranslation[2] = 0.000;
 
 	m_Pose.vecAcceleration[0] = 0.0;
 	m_Pose.vecAcceleration[1] = 0.0;
@@ -129,13 +153,16 @@ void HyController::initPos()
 	m_Pose.vecAngularAcceleration[2] = 0.0;
 }
 
-#define SWITCH_KEY
 
 void HyController::SendButtonUpdate(HyInputState inputState)
 {
 	const double fTimeOffset = -1.005;
 	float TriggerValue = 0.0f;
 	float GripValue = 0.0f;
+	
+	if (m_Pose.deviceIsConnected = false) {
+		return;//avoid wrong key input
+	}
 
 	vr::VRDriverInput()->UpdateBooleanComponent(m_trackpad, (bool)((HY_BUTTON_TOUCHPAD_LEFT +HY_BUTTON_TOUCHPAD_RIGHT) & inputState.m_buttons), 0);
 #ifdef SWITCH_KEY
@@ -145,7 +172,7 @@ void HyController::SendButtonUpdate(HyInputState inputState)
 #ifndef SWITCH_KEY
 	vr::VRDriverInput()->UpdateBooleanComponent(m_system, (bool)((HY_BUTTON_HOME + HY_BUTTON_MENU) & inputState.m_buttons), 0);
 	vr::VRDriverInput()->UpdateBooleanComponent(m_application_menu, (bool)((HY_BUTTON_HOME_LONGPRESS + HY_BUTTON_MENU_LONGPRESS) & inputState.m_buttons), 0);
-#endif // SWITCH sys btn & menu btn
+#endif // !NO_SWIT
 
 	if (inputState.m_indexTrigger > 0.8) {
 		vr::VRDriverInput()->UpdateBooleanComponent(m_trigger, true, 0);
@@ -193,13 +220,15 @@ DriverPose_t HyController::GetPose(HyTrackingState ctrData)
 	m_Pose.vecVelocity[0] = ctrData.m_linearVelocity.x;
 	m_Pose.vecVelocity[1] = ctrData.m_linearVelocity.y;
 	m_Pose.vecVelocity[2] = ctrData.m_linearVelocity.z;
+	///m_Pose.vecAngularVelocity[0] = ctrData.m_angularVelocity.x;
+	//m_Pose.vecAngularVelocity[1] = ctrData.m_angularVelocity.y;
+	//m_Pose.vecAngularVelocity[2] = ctrData.m_angularVelocity.z;//Avoid shaking...no idea why
 	m_Pose.vecAngularAcceleration[0] = ctrData.m_angularAcceleration.x;
 	m_Pose.vecAngularAcceleration[1] = ctrData.m_angularAcceleration.y;
 	m_Pose.vecAngularAcceleration[2] = ctrData.m_angularAcceleration.z;
 	m_Pose.vecAcceleration[0] = ctrData.m_linearAcceleration.x;
 	m_Pose.vecAcceleration[1] = ctrData.m_linearAcceleration.y;
 	m_Pose.vecAcceleration[2] = ctrData.m_linearAcceleration.z;
-	m_Pose.poseTimeOffset = 0.011f;
 	return m_Pose;
 }
 
@@ -210,13 +239,13 @@ std::string HyController::GetSerialNumber()
 
 void HyController::UpdatePose(HyTrackingState ctrData)
 {
-	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_unObjectId, GetPose(ctrData), sizeof(DriverPose_t));
+	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(VrObjectId, GetPose(ctrData), sizeof(DriverPose_t));
 }
 
 void HyController::UpdateBattery(int value)
 {
 	bool ifBatteryEmpty = false;
-	if (value <= 1) {
+	if (value <= 1) {//we only got 0,1,2. 0 for empty, 1 for low, 2 for normal
 		ifBatteryEmpty = true;
 	}
 	else {
