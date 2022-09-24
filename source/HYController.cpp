@@ -156,12 +156,12 @@ void HyController::initPos()
 
 void HyController::SendButtonUpdate(HyInputState inputState)
 {
-	const double fTimeOffset = -1.005;
+	const double fTimeOffset = 0;
 	float TriggerValue = 0.0f;
 	float GripValue = 0.0f;
 	
 	if (m_Pose.deviceIsConnected = false) {
-		return;//avoid wrong key input
+		return;//avoid noise
 	}
 
 	vr::VRDriverInput()->UpdateBooleanComponent(m_trackpad, (bool)((HY_BUTTON_TOUCHPAD_LEFT +HY_BUTTON_TOUCHPAD_RIGHT) & inputState.m_buttons), 0);
@@ -186,8 +186,6 @@ void HyController::SendButtonUpdate(HyInputState inputState)
 	else {
 		vr::VRDriverInput()->UpdateBooleanComponent(m_grip, false, 0);
 	}
-	//vr::VRDriverInput()->UpdateBooleanComponent(m_trigger, (bool)((HY_TOUCH_INDEX_TRIGGER_LEFT + HY_TOUCH_INDEX_TRIGGER_RIGHT) & inputState.m_touches), fTimeOffset);
-	//vr::VRDriverInput()->UpdateBooleanComponent(m_grip, (bool)(HY_TOUCH_SIDE_TRIGGER_LEFT + HY_TOUCH_SIDE_TRIGGER_RIGHT & inputState.m_touches), fTimeOffset);
 	vr::VRDriverInput()->UpdateBooleanComponent(m_touch, (bool)(HY_TOUCH_TOUCHPAD_LEFT + HY_TOUCH_TOUCHPAD_RIGHT & inputState.m_touches), 0);
 
 	vr::VRDriverInput()->UpdateScalarComponent(m_trigger_value, inputState.m_indexTrigger, 0);
@@ -222,7 +220,7 @@ DriverPose_t HyController::GetPose(HyTrackingState ctrData)
 	m_Pose.vecVelocity[2] = ctrData.m_linearVelocity.z;
 	///m_Pose.vecAngularVelocity[0] = ctrData.m_angularVelocity.x;
 	//m_Pose.vecAngularVelocity[1] = ctrData.m_angularVelocity.y;
-	//m_Pose.vecAngularVelocity[2] = ctrData.m_angularVelocity.z;//Avoid shaking...these data from sdk is to sharp
+	//m_Pose.vecAngularVelocity[2] = ctrData.m_angularVelocity.z;//Avoid shaking...these data from sdk is too sharp
 	m_Pose.vecAngularAcceleration[0] = ctrData.m_angularAcceleration.x;
 	m_Pose.vecAngularAcceleration[1] = ctrData.m_angularAcceleration.y;
 	m_Pose.vecAngularAcceleration[2] = ctrData.m_angularAcceleration.z;

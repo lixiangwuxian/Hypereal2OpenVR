@@ -1,5 +1,6 @@
 #define USE_HMD
 #define SWITCH_KEY
+//#define DISPLAY_DEBUG
 
 /* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 * This Source Code Form is subject to the terms of the Mozilla Public

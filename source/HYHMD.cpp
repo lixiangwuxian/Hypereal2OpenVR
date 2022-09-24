@@ -38,6 +38,10 @@ void HyHMD::initDisplayConfig() {
 	m_nWindowY = 0;
 	m_nWindowWidth = 2160;
 	m_nWindowHeight = 1200;
+#ifdef DISPLAY_DEBUG
+	m_nWindowWidth /= 10;
+	m_nWindowHeight /= 10;//smaller window
+#endif // DISPLAY_DEBUG
 }
 
 EVRInitError HyHMD::Activate(uint32_t unObjectId)
@@ -81,7 +85,9 @@ void* HyHMD::GetComponent(const char* pchComponentNameAndVersion) {
 		return static_cast<IVRDisplayComponent*>(this);
 	}
 	if (_stricmp(pchComponentNameAndVersion, IVRVirtualDisplay_Version) == 0) {
-		return static_cast<IVRVirtualDisplay*>(this);
+#ifndef DISPLAY_DEBUG
+		return static_cast<IVRVirtualDisplay*>(this);//commit this to get display on screen
+#endif
 	}
 	return nullptr;
 }
@@ -156,6 +162,7 @@ void HyHMD::GetEyeOutputViewport(EVREye eEye, uint32_t* pnX, uint32_t* pnY, uint
 	else {
 		*pnX = m_nWindowWidth / 2;
 	}
+
 }
 
 void HyHMD::GetProjectionRaw(EVREye eEye, float* pfLeft, float* pfRight, float* pfTop, float* pfBottom)
@@ -181,15 +188,26 @@ void HyHMD::GetProjectionRaw(EVREye eEye, float* pfLeft, float* pfRight, float* 
 DistortionCoordinates_t HyHMD::ComputeDistortion(EVREye eEye, float fU, float fV)
 {
 	DistortionCoordinates_t coordinates;
-	//add distortion for lens
-	coordinates.rfBlue[0] = fU;
-	coordinates.rfBlue[1] = fV;
-	coordinates.rfGreen[0] = fU;
-	coordinates.rfGreen[1] = fV;
-	coordinates.rfRed[0] = fU;
-	coordinates.rfRed[1] = fV;
+	//from https://github.com/HelenXR/openvr_survivor/blob/master/src/head_mount_display_device.cc
+	float hX;
+	float hY;
+	double rr;
+	double r2;
+	double theta;
+	rr = sqrt((fU - 0.5f) * (fU - 0.5f) + (fV - 0.5f) * (fV - 0.5f));
+	r2 = rr * (1 + m_fDistortionK1 * (rr * rr) +
+		m_fDistortionK2 * (rr * rr * rr * rr));
+	theta = atan2(fU - 0.5f, fV - 0.5f);
+	hX = float(sin(theta) * r2) * m_fZoomWidth;
+	hY = float(cos(theta) * r2) * m_fZoomHeight;
 
-	return coordinates;
+	coordinates.rfBlue[0] = hX + 0.5f;
+	coordinates.rfBlue[1] = hY + 0.5f;
+	coordinates.rfGreen[0] = hX + 0.5f;
+	coordinates.rfGreen[1] = hY + 0.5f;
+	coordinates.rfRed[0] = hX + 0.5f;
+	coordinates.rfRed[1] = hY + 0.5f;
+	return coordinates;//this works not very well..
 }
 
 
@@ -215,7 +233,7 @@ ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
 		return pTexture;
 	}
 	return NULL;
-}
+}//from virtual display simple
 
 
 
@@ -282,7 +300,7 @@ void HyHMD::initPos()
 
 	m_Pose.vecDriverFromHeadTranslation[0] = 0.00f;
 	m_Pose.vecDriverFromHeadTranslation[1] = -0.039f;
-	m_Pose.vecDriverFromHeadTranslation[2] = -0.156f;
+	m_Pose.vecDriverFromHeadTranslation[2] = -0.156f;//require further adjustment
 
 	m_Pose.vecAcceleration[0] = 0.0;
 	m_Pose.vecAcceleration[1] = 0.0;
@@ -349,8 +367,68 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 	}
 	/*if (HMDData.m_flags == HY_TRACKING_ROTATION_TRACKED) {
 		m_Pose.result = vr::TrackingResult_Fallback_RotationOnly;
-		m_Pose.poseIsValid = false;//¶ª×·×Ù²»»ÒÆÁ
+		m_Pose.poseIsValid = false;
 		return m_Pose;
-	}*/
+	}*///¶ª×·×Ù²»»ÒÆÁ
 	return m_Pose;
 }
+
+/*
+double* __fastcall sub_1800072C0(double* a1, float* a2)
+{
+	float v7; // xmm0_4
+	float v15; // xmm0_4
+	float v16; // xmm3_4
+	float v17; // xmm1_4
+	float v18; // xmm0_4
+	float v19; // xmm2_4
+	float v20; // xmm1_4
+	float v21; // xmm3_4
+	float v22; // xmm1_4
+	float v23; // xmm2_4
+	v7 = a2[0] + a2[5] + a2[10];
+	if (v7 <= 0.0)
+	{
+		if (a2[0] <= a2[5] || a2[0] <= a2[10])
+		{
+			if (a2[5] <= a2[10])//a2[10] is max
+			{
+				v21 = sqrtf(a2[10] + 1.0 - a2[0] - a2[5]) * 2.0;
+				v22 = a2[4] - a2[1];
+				v23 = a2[8] + a2[2];
+				a1[2] = (a2[9] + a2[6]) / v21;
+				a1[0] = v22 / v21;
+				a1[1] = v23 / v21;
+				a1[3] = v21 * 0.25;
+			}
+			else//s2[5] is max
+			{
+				v18 = sqrtf(a2[5] + 1.0- a2[0] - a2[10]);
+				v19 = (a2[4] + a2[1]) / (v18 * 2.0);
+				a1[0] = ((a2[2] - a2[8]) / (v18 * 2.0));
+				a1[1] = v19;
+				v20 = a2[9] + a2[6];
+				a1[2] = (v18 * 2.0) * 0.25;
+				a1[3] = v20 / (v18 * 2.0);
+			}
+		}
+		else//a2[0] is max
+		{
+			v15 = sqrtf(a2[0] + 1.0 - a2[5] - a2[10]);
+			v16 = (a2[4] + a2[1]) / (v15 * 2.0);
+			a1[0] = ((a2[9] - a2[6]) / (v15 * 2.0));
+			a1[1] = ((v15 * 2.0) * 0.25);
+			v17 = a2[8] + a2[2];
+			a1[2] = v16;
+			a1[3] = v17 / (v15 * 2.0);
+		}
+	}
+	else//v7<0
+	{
+		a1[0] = (0.25 / (0.5 / sqrtf(v7 + 1.0)));
+		a1[1] = (a2[9] - a2[6]) * (0.5 / v8);
+		a1[2] = (a2[2] - a2[8]) * (0.5*v8);
+		a1[3] = (a2[4] - a2[1]) * (0.5*v8);
+	}
+	return a1;
+}*/ //from 00hypereal00.dll by ida, no idea for what, maybe useful

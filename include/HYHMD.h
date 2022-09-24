@@ -76,6 +76,10 @@ private:
 	int32_t m_nRenderWidth;
 	int32_t m_nRenderHeight;
 	int32_t m_iEyeGapOff;
+	float m_fDistortionK1 = 0.6;
+	float m_fDistortionK2 = 0.6;
+	float m_fZoomWidth = 1;
+	float m_fZoomHeight = 1;
 
 	SharedTextures_t m_SharedTextureCache;
 	ID3D11Texture2D* GetSharedTexture(HANDLE hSharedTexture);
