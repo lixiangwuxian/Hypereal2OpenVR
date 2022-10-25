@@ -61,6 +61,7 @@ private:
 	vr::VRInputComponentHandle_t  m_trackpady;		  // "/input/trackpad/y"
 	vr::VRInputComponentHandle_t  m_out_Haptic;       // "/output/haptic"
 
+
 	std::string m_sSerialNumber;
 	std::string m_sModelNumber;
 	ETrackedControllerRole  m_Type;

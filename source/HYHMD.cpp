@@ -187,7 +187,7 @@ void HyHMD::GetProjectionRaw(EVREye eEye, float* pfLeft, float* pfRight, float* 
 
 DistortionCoordinates_t HyHMD::ComputeDistortion(EVREye eEye, float fU, float fV)
 {
-	DistortionCoordinates_t coordinates;
+	/*DistortionCoordinates_t coordinates;
 	//from https://github.com/HelenXR/openvr_survivor/blob/master/src/head_mount_display_device.cc
 	float hX;
 	float hY;
@@ -207,7 +207,15 @@ DistortionCoordinates_t HyHMD::ComputeDistortion(EVREye eEye, float fU, float fV
 	coordinates.rfGreen[1] = hY + 0.5f;
 	coordinates.rfRed[0] = hX + 0.5f;
 	coordinates.rfRed[1] = hY + 0.5f;
-	return coordinates;//this works not very well..
+	return coordinates;//this works not very well..*/
+	DistortionCoordinates_t coordinates;
+	coordinates.rfBlue[0] = fU;
+	coordinates.rfBlue[1] = fV;
+	coordinates.rfGreen[0] =fU;
+	coordinates.rfGreen[1] =fV;
+	coordinates.rfRed[0] = fU;
+	coordinates.rfRed[1] =fV;
+	return coordinates;
 }
 
 
@@ -373,7 +381,7 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 	return m_Pose;
 }
 
-/*
+//a1 for output,a2 for input
 double* __fastcall sub_1800072C0(double* a1, float* a2)
 {
 	float v7; // xmm0_4
@@ -426,9 +434,9 @@ double* __fastcall sub_1800072C0(double* a1, float* a2)
 	else//v7<0
 	{
 		a1[0] = (0.25 / (0.5 / sqrtf(v7 + 1.0)));
-		a1[1] = (a2[9] - a2[6]) * (0.5 / v8);
-		a1[2] = (a2[2] - a2[8]) * (0.5*v8);
-		a1[3] = (a2[4] - a2[1]) * (0.5*v8);
+		a1[1] = (a2[9] - a2[6]) * (0.5 / sqrtf(v7 + 1.0));
+		a1[2] = (a2[2] - a2[8]) * (0.5*sqrtf(v7 + 1.0));
+		a1[3] = (a2[4] - a2[1]) * (0.5*sqrtf(v7 + 1.0));
 	}
 	return a1;
-}*/ //from 00hypereal00.dll by ida, no idea for what, maybe useful
+} //from 00hypereal00.dll ,might be for distortion
