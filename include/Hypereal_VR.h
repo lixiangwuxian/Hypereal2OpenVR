@@ -1,4 +1,4 @@
-//#define USE_HMD
+#define USE_HMD
 #define SWITCH_KEY
 #define SIMULATE_OCULUS_TOUCH
 //#define DISPLAY_DEBUG

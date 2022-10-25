@@ -93,4 +93,6 @@ private:
 	HyTextureDesc m_DispTexDesc;
 	ID3D11Device* pD3D11Device;
 	ID3D11DeviceContext* pD3D11DeviceContext;
+	ID3D11Texture2D* m_pTexture;
+	IDXGIKeyedMutex* m_pKeyedMutex;
 };

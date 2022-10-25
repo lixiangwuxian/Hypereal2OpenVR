@@ -247,32 +247,33 @@ ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
 
 void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSize)
 {
-	ID3D11Texture2D* pTexture = GetSharedTexture((HANDLE)pPresentInfo->backbufferTextureHandle);
-	IDXGIKeyedMutex* pKeyedMutex = NULL;
-	HyPose eyePoses[HY_EYE_MAX];
-	HyTrackingState trackInform;
-	pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&pKeyedMutex);
+	m_pTexture = GetSharedTexture((HANDLE)pPresentInfo->backbufferTextureHandle);
+	m_pKeyedMutex = NULL;
+	m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
 	m_tLastSubmitTime = clock();
-	if (pKeyedMutex->AcquireSync(0, 50) != S_OK)
+	if (m_pKeyedMutex->AcquireSync(0, 50) != S_OK)
 	{
-		pKeyedMutex->Release();
+		m_pKeyedMutex->Release();
 		return;
 	}//wait randering
-	m_DispTexDesc.m_texture = pTexture;
 	m_nFrameCounter = pPresentInfo->nFrameId;
-	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, m_nFrameCounter, trackInform);
-	UpdatePose(trackInform);
-	m_DispHandle->GetEyePoses(trackInform.m_pose, nullptr, eyePoses);
-	HyResult rs = m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
-	if (pKeyedMutex)
-	{
-		pKeyedMutex->ReleaseSync(0);
-		pKeyedMutex->Release();
-	}
 }
 
 void HyHMD::WaitForPresent()
 {
+	//DriverLog("WaitForPresent() called");
+	m_DispTexDesc.m_texture = m_pTexture;
+	HyPose eyePoses[HY_EYE_MAX];
+	HyTrackingState trackInform;
+	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, m_nFrameCounter, trackInform);
+	UpdatePose(trackInform);
+	m_DispHandle->GetEyePoses(trackInform.m_pose, nullptr, eyePoses);
+	HyResult rs = m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
+	if (m_pKeyedMutex)
+	{
+		m_pKeyedMutex->ReleaseSync(0);
+		m_pKeyedMutex->Release();
+	}
 }
 
 bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
@@ -380,63 +381,3 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 	}*///¶ª×·×Ù²»»ÒÆÁ
 	return m_Pose;
 }
-
-//a1 for output,a2 for input
-double* __fastcall sub_1800072C0(double* a1, float* a2)
-{
-	float v7; // xmm0_4
-	float v15; // xmm0_4
-	float v16; // xmm3_4
-	float v17; // xmm1_4
-	float v18; // xmm0_4
-	float v19; // xmm2_4
-	float v20; // xmm1_4
-	float v21; // xmm3_4
-	float v22; // xmm1_4
-	float v23; // xmm2_4
-	v7 = a2[0] + a2[5] + a2[10];
-	if (v7 <= 0.0)
-	{
-		if (a2[0] <= a2[5] || a2[0] <= a2[10])
-		{
-			if (a2[5] <= a2[10])//a2[10] is max
-			{
-				v21 = sqrtf(a2[10] + 1.0 - a2[0] - a2[5]) * 2.0;
-				v22 = a2[4] - a2[1];
-				v23 = a2[8] + a2[2];
-				a1[2] = (a2[9] + a2[6]) / v21;
-				a1[0] = v22 / v21;
-				a1[1] = v23 / v21;
-				a1[3] = v21 * 0.25;
-			}
-			else//s2[5] is max
-			{
-				v18 = sqrtf(a2[5] + 1.0- a2[0] - a2[10]);
-				v19 = (a2[4] + a2[1]) / (v18 * 2.0);
-				a1[0] = ((a2[2] - a2[8]) / (v18 * 2.0));
-				a1[1] = v19;
-				v20 = a2[9] + a2[6];
-				a1[2] = (v18 * 2.0) * 0.25;
-				a1[3] = v20 / (v18 * 2.0);
-			}
-		}
-		else//a2[0] is max
-		{
-			v15 = sqrtf(a2[0] + 1.0 - a2[5] - a2[10]);
-			v16 = (a2[4] + a2[1]) / (v15 * 2.0);
-			a1[0] = ((a2[9] - a2[6]) / (v15 * 2.0));
-			a1[1] = ((v15 * 2.0) * 0.25);
-			v17 = a2[8] + a2[2];
-			a1[2] = v16;
-			a1[3] = v17 / (v15 * 2.0);
-		}
-	}
-	else//v7<0
-	{
-		a1[0] = (0.25 / (0.5 / sqrtf(v7 + 1.0)));
-		a1[1] = (a2[9] - a2[6]) * (0.5 / sqrtf(v7 + 1.0));
-		a1[2] = (a2[2] - a2[8]) * (0.5*sqrtf(v7 + 1.0));
-		a1[3] = (a2[4] - a2[1]) * (0.5*sqrtf(v7 + 1.0));
-	}
-	return a1;
-} //from 00hypereal00.dll ,might be for distortion

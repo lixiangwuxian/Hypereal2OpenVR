@@ -101,8 +101,7 @@ void HyController::InitEventHandler()
 		vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/x/click", &m_system);
 		vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/y/click", &m_application_menu);//no system button now, bind one manually
 	}
-#endif // DEBUG
-
+#endif
 }
 
 
