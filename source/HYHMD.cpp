@@ -330,7 +330,7 @@ void HyHMD::initPos()
 
 DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 {
-	if (GetAsyncKeyState(VK_UP) != 0) {
+	/*if (GetAsyncKeyState(VK_UP) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[2] += 0.003;
 		DriverLog("vecWorldFromDriverTranslation_z:%f", m_Pose.vecDriverFromHeadTranslation[2]);
 	}
@@ -353,7 +353,7 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 	if (GetAsyncKeyState(VK_RIGHT) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[1] -= 0.003;
 		DriverLog("vecDriverFromHeadTranslation_x:%f", m_Pose.vecDriverFromHeadTranslation[1]);
-	}
+	}*/
 
 	m_Pose.result = vr::TrackingResult_Running_OK;
 	m_Pose.poseIsValid = true;
