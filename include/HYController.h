@@ -48,7 +48,7 @@ private:
 	vr::TrackedDeviceIndex_t VrObjectId;
 	vr::PropertyContainerHandle_t m_ulPropertyContainer;
 
-	//ContolerData Data update To Openvr
+	//update controller Data Data To Openvr
 	vr::VRInputComponentHandle_t  m_system;			  // "/input/system/click"
 	vr::VRInputComponentHandle_t  m_grip;		      // "/input/grip/click"
 	vr::VRInputComponentHandle_t  m_grip_value;		  // "/input/grip/value"
@@ -60,6 +60,10 @@ private:
 	vr::VRInputComponentHandle_t  m_trackpadx;		  // "/input/trackpad/x"
 	vr::VRInputComponentHandle_t  m_trackpady;		  // "/input/trackpad/y"
 	vr::VRInputComponentHandle_t  m_out_Haptic;       // "/output/haptic"
+#ifdef SIMULATE_OCULUS_TOUCH
+	vr::VRInputComponentHandle_t  m_system_for_oculus;
+#endif // SIMULATE_OCULUS_TOUCH
+
 
 
 	std::string m_sSerialNumber;

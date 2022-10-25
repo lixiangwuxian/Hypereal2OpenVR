@@ -24,7 +24,7 @@ EVRInitError HyController::Activate(uint32_t unObjectId)
 	initPos();
 	m_ulPropertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(VrObjectId);
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_SerialNumber_String, m_sSerialNumber.c_str());
-	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_ModelNumber_String, "Vive");
+	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_ModelNumber_String, "ViveMV");
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_RenderModelName_String, m_sModelNumber.c_str());
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_ManufacturerName_String, "HTC");
 	vr::VRProperties()->SetInt32Property(m_ulPropertyContainer, Prop_Axis0Type_Int32, k_eControllerAxis_TrackPad);
@@ -75,9 +75,9 @@ void HyController::InitEventHandler()
 {
 	//in
 	vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/grip/click", &m_grip);
+	vr::VRDriverInput()->CreateScalarComponent(m_ulPropertyContainer, "/input/grip/value", &m_grip_value, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
 	vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/trigger/click", &m_trigger);
 	vr::VRDriverInput()->CreateScalarComponent(m_ulPropertyContainer, "/input/trigger/value", &m_trigger_value, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
-	vr::VRDriverInput()->CreateScalarComponent(m_ulPropertyContainer, "/input/grip/value", &m_grip_value, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
 #ifndef SIMULATE_OCULUS_TOUCH
 	vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/trackpad/click", &m_trackpad);
 	vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/trackpad/touch", &m_touch);
@@ -93,11 +93,13 @@ void HyController::InitEventHandler()
 	vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/joystick/touch", &m_touch);
 	vr::VRDriverInput()->CreateScalarComponent(m_ulPropertyContainer, "/input/joystick/x", &m_trackpadx, VRScalarType_Absolute, VRScalarUnits_NormalizedTwoSided);
 	vr::VRDriverInput()->CreateScalarComponent(m_ulPropertyContainer, "/input/joystick/y", &m_trackpady, VRScalarType_Absolute, VRScalarUnits_NormalizedTwoSided);
+	
 	if (m_sSerialNumber[0] == 'R') {
 		vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/a/click", &m_system);
 		vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/b/click", &m_application_menu);
 	}
 	else {
+		vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/system/click", &m_system_for_oculus);
 		vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/x/click", &m_system);
 		vr::VRDriverInput()->CreateBooleanComponent(m_ulPropertyContainer, "/input/y/click", &m_application_menu);//no system button now, bind one manually
 	}
@@ -203,6 +205,12 @@ void HyController::SendButtonUpdate(HyInputState inputState)
 	vr::VRDriverInput()->UpdateScalarComponent(m_trackpadx, inputState.m_touchpad.x*1.1 , 0);
 	vr::VRDriverInput()->UpdateScalarComponent(m_trackpady, inputState.m_touchpad.y*1.1 , 0);
 	vr::VRDriverInput()->UpdateScalarComponent(m_grip_value, inputState.m_sideTrigger, 0);
+#ifdef SIMULATE_OCULUS_TOUCH
+	if (m_sSerialNumber[0] == 'L') {
+		vr::VRDriverInput()->CreateBooleanComponent(m_system_for_oculus, (bool)GetAsyncKeyState(VK_SPACE), 0);
+	}
+#endif // SIMULATE_OCULUS_TOUCH
+
 	
 }
 

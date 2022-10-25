@@ -187,27 +187,6 @@ void HyHMD::GetProjectionRaw(EVREye eEye, float* pfLeft, float* pfRight, float* 
 
 DistortionCoordinates_t HyHMD::ComputeDistortion(EVREye eEye, float fU, float fV)
 {
-	/*DistortionCoordinates_t coordinates;
-	//from https://github.com/HelenXR/openvr_survivor/blob/master/src/head_mount_display_device.cc
-	float hX;
-	float hY;
-	double rr;
-	double r2;
-	double theta;
-	rr = sqrt((fU - 0.5f) * (fU - 0.5f) + (fV - 0.5f) * (fV - 0.5f));
-	r2 = rr * (1 + m_fDistortionK1 * (rr * rr) +
-		m_fDistortionK2 * (rr * rr * rr * rr));
-	theta = atan2(fU - 0.5f, fV - 0.5f);
-	hX = float(sin(theta) * r2) * m_fZoomWidth;
-	hY = float(cos(theta) * r2) * m_fZoomHeight;
-
-	coordinates.rfBlue[0] = hX + 0.5f;
-	coordinates.rfBlue[1] = hY + 0.5f;
-	coordinates.rfGreen[0] = hX + 0.5f;
-	coordinates.rfGreen[1] = hY + 0.5f;
-	coordinates.rfRed[0] = hX + 0.5f;
-	coordinates.rfRed[1] = hY + 0.5f;
-	return coordinates;//this works not very well..*/
 	DistortionCoordinates_t coordinates;
 	coordinates.rfBlue[0] = fU;
 	coordinates.rfBlue[1] = fV;
@@ -259,16 +238,46 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	m_nFrameCounter = pPresentInfo->nFrameId;
 }
 
+void HyHMD::setViewMatrix() {
+	HyFov fov[2];
+	HMDDevice->GetFloatArray(HY_PROPERTY_HMD_LEFT_EYE_FOV_FLOAT4_ARRAY, fov[0].val, 4);
+	HMDDevice->GetFloatArray(HY_PROPERTY_HMD_RIGHT_EYE_FOV_FLOAT4_ARRAY, fov[1].val, 4);
+	HyMat4 projMatrix[2];
+	m_DispHandle->GetProjectionMatrix(fov[0], 0.1f, 1000.0f, true, projMatrix[0]);
+	m_DispHandle->GetProjectionMatrix(fov[1], 0.1f, 1000.0f, true, projMatrix[1]);
+	vr::HmdMatrix34_t* projMatrix34[2];
+	projMatrix34[0] = (HmdMatrix34_t*)&projMatrix[0];
+	projMatrix34[1] = (HmdMatrix34_t*)&projMatrix[1];
+	for (int i = 0; i < 4; i++) {
+		projMatrix34[0]->m[0][i] = projMatrix34[0]->m[0][i];
+		projMatrix34[0]->m[1][i] = projMatrix34[0]->m[1][i];
+		projMatrix34[0]->m[2][i] = -projMatrix34[0]->m[2][i];
+	}
+	for (int i = 0; i < 4; i++) {
+		projMatrix34[1]->m[0][i] = projMatrix34[1]->m[0][i];
+		projMatrix34[1]->m[1][i] = projMatrix34[1]->m[1][i];
+		projMatrix34[1]->m[2][i] = -projMatrix34[1]->m[2][i];
+	}
+	VRServerDriverHost()->SetDisplayEyeToHead(m_unObjectId, *projMatrix34[0], *projMatrix34[1]);
+	DriverLog("Matrix:\n");
+	for (int i = 0; i < 4; i++) {
+		DriverLog("%f %f %f %f\n", projMatrix34[0]->m[i][0], projMatrix34[0]->m[i][1], projMatrix34[0]->m[i][2], projMatrix34[0]->m[i][3]);
+	}
+}
+
 void HyHMD::WaitForPresent()
 {
-	//DriverLog("WaitForPresent() called");
 	m_DispTexDesc.m_texture = m_pTexture;
 	HyPose eyePoses[HY_EYE_MAX];
 	HyTrackingState trackInform;
 	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, m_nFrameCounter, trackInform);
-	UpdatePose(trackInform);
 	m_DispHandle->GetEyePoses(trackInform.m_pose, nullptr, eyePoses);
-	HyResult rs = m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
+	//setViewMatrix();
+	//m_Pose.vecDriverFromHeadTranslation[0] = (eyePoses[0].m_position.x + eyePoses[1].m_position.x) / 2-trackInform.m_pose.m_position.x;
+	//m_Pose.vecDriverFromHeadTranslation[1]=(eyePoses[0].m_position.y + eyePoses[1].m_position.y) / 2- trackInform.m_pose.m_position.y;
+	//m_Pose.vecDriverFromHeadTranslation[2] = (eyePoses[0].m_position.z + eyePoses[1].m_position.z) / 2- trackInform.m_pose.m_position.z;
+	UpdatePose(trackInform);
+	m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
 	if (m_pKeyedMutex)
 	{
 		m_pKeyedMutex->ReleaseSync(0);
@@ -308,8 +317,8 @@ void HyHMD::initPos()
 	m_Pose.qDriverFromHeadRotation.z = 0.0;
 
 	m_Pose.vecDriverFromHeadTranslation[0] = 0.00f;
-	m_Pose.vecDriverFromHeadTranslation[1] = -0.039f;
-	m_Pose.vecDriverFromHeadTranslation[2] = -0.156f;//require further adjustment
+	m_Pose.vecDriverFromHeadTranslation[1] = 0.00f;
+	m_Pose.vecDriverFromHeadTranslation[2] = 0.00f;
 
 	m_Pose.vecAcceleration[0] = 0.0;
 	m_Pose.vecAcceleration[1] = 0.0;
@@ -321,7 +330,7 @@ void HyHMD::initPos()
 
 DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 {
-	/*if (GetAsyncKeyState(VK_UP) != 0) {
+	/**if (GetAsyncKeyState(VK_UP) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[2] += 0.003;
 		DriverLog("vecWorldFromDriverTranslation_z:%f", m_Pose.vecDriverFromHeadTranslation[2]);
 	}
@@ -344,7 +353,7 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 	if (GetAsyncKeyState(VK_RIGHT) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[1] -= 0.003;
 		DriverLog("vecDriverFromHeadTranslation_x:%f", m_Pose.vecDriverFromHeadTranslation[1]);
-	}*/
+	}**/
 
 	m_Pose.result = vr::TrackingResult_Running_OK;
 	m_Pose.poseIsValid = true;
@@ -381,3 +390,44 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 	}*///¶ª×·×Ù²»»ÒÆÁ
 	return m_Pose;
 }
+
+//a1 for output,a2 for input.
+double* __fastcall sub_1800072C0(float* a2)
+{
+	double* a1 = new double[4];
+	if (a2[0] + a2[5] + a2[10] <= 0.0)
+	{
+		if (a2[0] <= a2[5] || a2[0] <= a2[10])
+		{
+			if (a2[5] <= a2[10])//a2[10] is max
+			{
+				a1[0] = (a2[4] - a2[1]) / (sqrtf(a2[10] + 1.0 - a2[0] - a2[5]) * 2.0);
+				a1[1] = (a2[8] + a2[2]) / (sqrtf(a2[10] + 1.0 - a2[0] - a2[5]) * 2.0);
+				a1[2] = (a2[9] + a2[6]) / (sqrtf(a2[10] + 1.0 - a2[0] - a2[5]) * 2.0);
+				a1[3] = sqrtf(a2[10] + 1.0 - a2[0] - a2[5]) *0.5;
+			}
+			else//s2[5] is max
+			{
+				a1[0] = ((a2[2] - a2[8]) / (sqrtf(a2[5] + 1.0 - a2[0] - a2[10]) * 2.0));
+				a1[1] = (a2[4] + a2[1]) / (sqrtf(a2[5] + 1.0 - a2[0] - a2[10]) * 2.0);
+				a1[2] = sqrtf(a2[5] + 1.0 - a2[0] - a2[10]) * 0.5;
+				a1[3] = (a2[9] + a2[6]) / (sqrtf(a2[5] + 1.0 - a2[0] - a2[10]) * 2.0);
+			}
+		}
+		else//a2[0] is max
+		{
+			a1[0] = ((a2[9] - a2[6]) / (sqrtf(a2[0] + 1.0 - a2[5] - a2[10]) * 2.0));
+			a1[1] = sqrtf(a2[0] + 1.0 - a2[5] - a2[10]) * 0.5;
+			a1[2] = (a2[4] + a2[1]) / (sqrtf(a2[0] + 1.0 - a2[5] - a2[10]) * 2.0);
+			a1[3] = (a2[8] + a2[2]) / (sqrtf(a2[0] + 1.0 - a2[5] - a2[10]) * 2.0);
+		}
+	}
+	else//a2[0] + a2[5] + a2[10]<0
+	{
+		a1[0] = sqrtf(a2[0] + a2[5] + a2[10] + 1.0) * 0.5;
+		a1[1] = (a2[9] - a2[6]) * (0.5 / sqrtf(a2[0] + a2[5] + a2[10] + 1.0));
+		a1[2] = (a2[2] - a2[8]) * (0.5 * sqrtf(a2[0] + a2[5] + a2[10] + 1.0));
+		a1[3] = (a2[4] - a2[1]) * (0.5 * sqrtf(a2[0] + a2[5] + a2[10] + 1.0));
+	}
+	return a1;
+} //from 00hypereal00.dll ,might be for distortion

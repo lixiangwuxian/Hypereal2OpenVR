@@ -97,7 +97,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>driver_revive_hypereal</TargetName>
-    <OutDir>$(SolutionDir)\bin\win64</OutDir>
+    <OutDir>$(SolutionDir)\revive_hypereal\bin\win64</OutDir>
     <LibraryPath>$(SolutionDir)libraries\$(Platform);$(SolutionDir)libraries;$(LibraryPath)</LibraryPath>
     <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(SolutionDir)include;$(SolutionDir)include\Python;$(SolutionDir)include\OpenVR;$(IncludePath)</IncludePath>
     <IntDir>$(ProjectName)$(Platform)\$(Configuration)\</IntDir>

@@ -59,8 +59,9 @@ public:
 
 private:
 	void initDisplayConfig();
-	HyDevice* HMDDevice;
+	void setViewMatrix();
 	void initPos();
+	HyDevice* HMDDevice;
 	DriverPose_t GetPose(HyTrackingState ctrData);
 	vr::DriverPose_t  m_Pose;
 	vr::TrackedDeviceIndex_t m_unObjectId;
