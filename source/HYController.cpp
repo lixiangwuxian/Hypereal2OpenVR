@@ -207,7 +207,7 @@ void HyController::SendButtonUpdate(HyInputState inputState)
 	vr::VRDriverInput()->UpdateScalarComponent(m_grip_value, inputState.m_sideTrigger, 0);
 #ifdef SIMULATE_OCULUS_TOUCH
 	if (m_sSerialNumber[0] == 'L') {
-		vr::VRDriverInput()->CreateBooleanComponent(m_system_for_oculus, (bool)GetAsyncKeyState(VK_SPACE), 0);
+		vr::VRDriverInput()->UpdateBooleanComponent(m_system_for_oculus, (bool)GetAsyncKeyState(VK_SPACE), 0);
 	}
 #endif // SIMULATE_OCULUS_TOUCH
 
