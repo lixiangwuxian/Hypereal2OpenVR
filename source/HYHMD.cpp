@@ -173,16 +173,17 @@ void HyHMD::GetProjectionRaw(EVREye eEye, float* pfLeft, float* pfRight, float* 
 		HMDDevice->GetFloatArray(HY_PROPERTY_HMD_LEFT_EYE_FOV_FLOAT4_ARRAY, fov.val, 4);
 		*pfLeft = -fov.m_leftTan;
 		*pfRight = fov.m_rightTan;
-		*pfTop = -fov.m_upTan;
-		*pfBottom = fov.m_downTan;
+		*pfTop = fov.m_upTan;
+		*pfBottom = -fov.m_downTan;
 	}
 	else if (eEye == Eye_Right) {
 		HMDDevice->GetFloatArray(HY_PROPERTY_HMD_RIGHT_EYE_FOV_FLOAT4_ARRAY, fov.val, 4);
 		*pfLeft = -fov.m_leftTan;
 		*pfRight = fov.m_rightTan;
-		*pfTop = -fov.m_upTan;
-		*pfBottom = fov.m_downTan;
+		*pfTop = fov.m_upTan;
+		*pfBottom = -fov.m_downTan;
 	}
+	std::swap(*pfTop, *pfBottom);
 }
 
 DistortionCoordinates_t HyHMD::ComputeDistortion(EVREye eEye, float fU, float fV)
@@ -238,30 +239,15 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	m_nFrameCounter = pPresentInfo->nFrameId;
 }
 
-void HyHMD::setViewMatrix() {
+void HyHMD::viewMatrixToRaw() {
 	HyFov fov[2];
 	HMDDevice->GetFloatArray(HY_PROPERTY_HMD_LEFT_EYE_FOV_FLOAT4_ARRAY, fov[0].val, 4);
 	HMDDevice->GetFloatArray(HY_PROPERTY_HMD_RIGHT_EYE_FOV_FLOAT4_ARRAY, fov[1].val, 4);
 	HyMat4 projMatrix[2];
 	m_DispHandle->GetProjectionMatrix(fov[0], 0.1f, 1000.0f, true, projMatrix[0]);
 	m_DispHandle->GetProjectionMatrix(fov[1], 0.1f, 1000.0f, true, projMatrix[1]);
-	vr::HmdMatrix34_t* projMatrix34[2];
-	projMatrix34[0] = (HmdMatrix34_t*)&projMatrix[0];
-	projMatrix34[1] = (HmdMatrix34_t*)&projMatrix[1];
-	for (int i = 0; i < 4; i++) {
-		projMatrix34[0]->m[0][i] = projMatrix34[0]->m[0][i];
-		projMatrix34[0]->m[1][i] = projMatrix34[0]->m[1][i];
-		projMatrix34[0]->m[2][i] = -projMatrix34[0]->m[2][i];
-	}
-	for (int i = 0; i < 4; i++) {
-		projMatrix34[1]->m[0][i] = projMatrix34[1]->m[0][i];
-		projMatrix34[1]->m[1][i] = projMatrix34[1]->m[1][i];
-		projMatrix34[1]->m[2][i] = -projMatrix34[1]->m[2][i];
-	}
-	VRServerDriverHost()->SetDisplayEyeToHead(m_unObjectId, *projMatrix34[0], *projMatrix34[1]);
-	DriverLog("Matrix:\n");
-	for (int i = 0; i < 4; i++) {
-		DriverLog("%f %f %f %f\n", projMatrix34[0]->m[i][0], projMatrix34[0]->m[i][1], projMatrix34[0]->m[i][2], projMatrix34[0]->m[i][3]);
+	for (int i = 0; i < 2; i++) {
+		
 	}
 }
 
@@ -272,10 +258,7 @@ void HyHMD::WaitForPresent()
 	HyTrackingState trackInform;
 	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, m_nFrameCounter, trackInform);
 	m_DispHandle->GetEyePoses(trackInform.m_pose, nullptr, eyePoses);
-	//setViewMatrix();
-	//m_Pose.vecDriverFromHeadTranslation[0] = (eyePoses[0].m_position.x + eyePoses[1].m_position.x) / 2-trackInform.m_pose.m_position.x;
-	//m_Pose.vecDriverFromHeadTranslation[1]=(eyePoses[0].m_position.y + eyePoses[1].m_position.y) / 2- trackInform.m_pose.m_position.y;
-	//m_Pose.vecDriverFromHeadTranslation[2] = (eyePoses[0].m_position.z + eyePoses[1].m_position.z) / 2- trackInform.m_pose.m_position.z;
+	//viewMatrixToRaw();
 	UpdatePose(trackInform);
 	m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
 	if (m_pKeyedMutex)

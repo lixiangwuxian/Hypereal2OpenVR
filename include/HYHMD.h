@@ -59,7 +59,7 @@ public:
 
 private:
 	void initDisplayConfig();
-	void setViewMatrix();
+	void viewMatrixToRaw();
 	void initPos();
 	HyDevice* HMDDevice;
 	DriverPose_t GetPose(HyTrackingState ctrData);
