@@ -147,16 +147,12 @@ void ErrorAlarm(HyResult result) {
 void Boardcast() {
 	const TCHAR szOperation[] = _T("open");
 	wchar_t* szAddress = (wchar_t*)L"https://github.com/lixiangwuxian/HyperealDriverTest";
-	int result=MessageBox(NULL, L"2022/9/22 release1.0。\n\
+	int result=MessageBox(NULL, L"2022/10/27 release2.0。\n\
+似乎所有功能都正常\n\
 更新内容请于Github页面查看\n\
-Created By lixiangwuxian@github\n\
-点击是或否可打开此驱动Github页面检查更新\n\
-什么都不点即可继续使用"\
-, L"提示", MB_YESNO);
-	if (result == IDNO) {
-		ShellExecute(NULL, szOperation, szAddress, NULL, NULL, SW_SHOWNORMAL);
-	}
-	if (result == IDYES) {
+Created By lixiangwuxian@github\n"\
+, L"提示", MB_OK);
+	if (result != IDOK) {
 		ShellExecute(NULL, szOperation, szAddress, NULL, NULL, SW_SHOWNORMAL);
 	}
 }

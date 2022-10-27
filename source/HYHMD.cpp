@@ -184,6 +184,7 @@ void HyHMD::GetProjectionRaw(EVREye eEye, float* pfLeft, float* pfRight, float* 
 		*pfBottom = -fov.m_downTan;
 	}
 	std::swap(*pfTop, *pfBottom);
+	DriverLog("GetProjectionRaw lrtb:%f%f%f%f", *pfLeft, *pfRight, *pfTop, *pfBottom);//same as official
 }
 
 DistortionCoordinates_t HyHMD::ComputeDistortion(EVREye eEye, float fU, float fV)
@@ -239,18 +240,6 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	m_nFrameCounter = pPresentInfo->nFrameId;
 }
 
-void HyHMD::viewMatrixToRaw() {
-	HyFov fov[2];
-	HMDDevice->GetFloatArray(HY_PROPERTY_HMD_LEFT_EYE_FOV_FLOAT4_ARRAY, fov[0].val, 4);
-	HMDDevice->GetFloatArray(HY_PROPERTY_HMD_RIGHT_EYE_FOV_FLOAT4_ARRAY, fov[1].val, 4);
-	HyMat4 projMatrix[2];
-	m_DispHandle->GetProjectionMatrix(fov[0], 0.1f, 1000.0f, true, projMatrix[0]);
-	m_DispHandle->GetProjectionMatrix(fov[1], 0.1f, 1000.0f, true, projMatrix[1]);
-	for (int i = 0; i < 2; i++) {
-		
-	}
-}
-
 void HyHMD::WaitForPresent()
 {
 	m_DispTexDesc.m_texture = m_pTexture;
@@ -258,7 +247,6 @@ void HyHMD::WaitForPresent()
 	HyTrackingState trackInform;
 	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, m_nFrameCounter, trackInform);
 	m_DispHandle->GetEyePoses(trackInform.m_pose, nullptr, eyePoses);
-	//viewMatrixToRaw();
 	UpdatePose(trackInform);
 	m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
 	if (m_pKeyedMutex)
