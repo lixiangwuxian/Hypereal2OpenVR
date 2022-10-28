@@ -1,6 +1,7 @@
 #define USE_HMD
 #define SWITCH_KEY
-#define SIMULATE_OCULUS_TOUCH
+//#define DEBUG_COORDINATE
+//#define SIMULATE_OCULUS_TOUCH
 //#define DISPLAY_DEBUG
 
 /* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 2 -*-

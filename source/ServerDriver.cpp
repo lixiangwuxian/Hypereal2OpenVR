@@ -224,8 +224,12 @@ void ServerDriver::UpdateHyKey(HySubDevice device, HyInputState type)
 void ServerDriver::UpdateControllerBatteryThread()
 {
 	int64_t batteryValue = 3;
+	HyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_LEFT);
+	HyLeftController->UpdateBattery(batteryValue);
+	HyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_RIGHT);
+	HyRightController->UpdateBattery(batteryValue);
 	while (killProcessByName(L"bkdrop.exe")) {
-		Sleep(3000);
+		Sleep(5000);
 	}
 	while (true) {
 		HyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_LEFT);
@@ -262,11 +266,10 @@ void ServerDriver::UpdatePoseThread() {
 	*frameID = 0;
 #endif // !USE_HMD
 	while (m_bEventThreadRunning) {
-		HyTrackingDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_LEFT, *frameID, trackInform);
+		HyTrackingDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_LEFT, 0, trackInform);
 		UpdateHyPose(trackInform, true);
-		HyTrackingDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_RIGHT, *frameID, trackInform);
+		HyTrackingDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_RIGHT, 0, trackInform);
 		UpdateHyPose(trackInform, false);
-		Sleep(1);
 	}
 }
 

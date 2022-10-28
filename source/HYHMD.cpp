@@ -232,7 +232,7 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	m_pKeyedMutex = NULL;
 	m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
 	m_tLastSubmitTime = clock();
-	if (m_pKeyedMutex->AcquireSync(0, 50) != S_OK)
+	if (m_pKeyedMutex->AcquireSync(0, 100) != S_OK)
 	{
 		m_pKeyedMutex->Release();
 		return;
@@ -242,12 +242,10 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 
 void HyHMD::WaitForPresent()
 {
-	m_DispTexDesc.m_texture = m_pTexture;
-	HyPose eyePoses[HY_EYE_MAX];
 	HyTrackingState trackInform;
 	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, m_nFrameCounter, trackInform);
-	m_DispHandle->GetEyePoses(trackInform.m_pose, nullptr, eyePoses);
 	UpdatePose(trackInform);
+	m_DispTexDesc.m_texture = m_pTexture;
 	m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
 	if (m_pKeyedMutex)
 	{
@@ -288,8 +286,8 @@ void HyHMD::initPos()
 	m_Pose.qDriverFromHeadRotation.z = 0.0;
 
 	m_Pose.vecDriverFromHeadTranslation[0] =  0.00f;
-	m_Pose.vecDriverFromHeadTranslation[1] = -0.06f;
-	m_Pose.vecDriverFromHeadTranslation[2] = -0.10f;//to adjust..
+	m_Pose.vecDriverFromHeadTranslation[1] = -0.009f;
+	m_Pose.vecDriverFromHeadTranslation[2] = -0.148f;//to adjust..
 
 	m_Pose.vecAcceleration[0] = 0.0;
 	m_Pose.vecAcceleration[1] = 0.0;
@@ -301,53 +299,61 @@ void HyHMD::initPos()
 
 DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 {
-	/*if (GetAsyncKeyState(VK_UP) != 0) {
+	HyPose eyePoses[HY_EYE_MAX];
+	m_DispHandle->GetEyePoses(HMDData.m_pose, nullptr, eyePoses);
+#ifdef DEBUG_COORDINATE
+
+	if (GetAsyncKeyState(VK_UP) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[2] += 0.003;
-		DriverLog("vecWorldFromDriverTranslation_z:%f", m_Pose.vecDriverFromHeadTranslation[2]);
+		DriverLog("vecWorldFromDriverTranslation_[2]:%f", m_Pose.vecDriverFromHeadTranslation[2]);
 	}
 	if (GetAsyncKeyState(VK_DOWN) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[2] -= 0.003;
-		DriverLog("vecWorldFromDriverTranslation_z:%f", m_Pose.vecDriverFromHeadTranslation[2]);
+		DriverLog("vecWorldFromDriverTranslation_[2]:%f", m_Pose.vecDriverFromHeadTranslation[2]);
 	}
 	if (GetAsyncKeyState(VK_LCONTROL) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[0] += 0.003;
-		DriverLog("vecDriverFromHeadTranslation_y:%f", m_Pose.vecDriverFromHeadTranslation[0]);
+		DriverLog("vecDriverFromHeadTranslation[0]:%f", m_Pose.vecDriverFromHeadTranslation[0]);
 	}
-	if (GetAsyncKeyState(VK_LSHIFT)!= 0) {
+	if (GetAsyncKeyState(VK_LSHIFT) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[0] -= 0.003;
-		DriverLog("vecDriverFromHeadTranslation_y:%f", m_Pose.vecDriverFromHeadTranslation[0]);
+		DriverLog("vecDriverFromHeadTranslation[0]:%f", m_Pose.vecDriverFromHeadTranslation[0]);
 	}
 	if (GetAsyncKeyState(VK_LEFT) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[1] += 0.003;
-		DriverLog("vecDriverFromHeadTranslation_x:%f", m_Pose.vecDriverFromHeadTranslation[1]);
+		DriverLog("vecDriverFromHeadTranslation[1]:%f", m_Pose.vecDriverFromHeadTranslation[1]);
 	}
 	if (GetAsyncKeyState(VK_RIGHT) != 0) {
 		m_Pose.vecDriverFromHeadTranslation[1] -= 0.003;
-		DriverLog("vecDriverFromHeadTranslation_x:%f", m_Pose.vecDriverFromHeadTranslation[1]);
-	}*/
+		DriverLog("vecDriverFromHeadTranslation[1]:%f", m_Pose.vecDriverFromHeadTranslation[1]);
+	}
 
+#endif // DEBUG_COORDINATE
 	m_Pose.result = vr::TrackingResult_Running_OK;
 	m_Pose.poseIsValid = true;
 	m_Pose.deviceIsConnected = true;
-	m_Pose.vecPosition[0] = HMDData.m_pose.m_position.x;
-	m_Pose.vecPosition[1] = HMDData.m_pose.m_position.y;
-	m_Pose.vecPosition[2] = HMDData.m_pose.m_position.z;
+	//m_Pose.vecPosition[0] = HMDData.m_pose.m_position.x;
+	//m_Pose.vecPosition[1] = HMDData.m_pose.m_position.y;
+	//m_Pose.vecPosition[2] = HMDData.m_pose.m_position.z;
+	m_Pose.vecPosition[0] = (eyePoses[0].m_position.x + eyePoses[1].m_position.x) / 2;
+	m_Pose.vecPosition[1] = (eyePoses[0].m_position.y + eyePoses[1].m_position.y) / 2;
+	m_Pose.vecPosition[2] = (eyePoses[0].m_position.z + eyePoses[1].m_position.z) / 2;
 	m_Pose.qRotation.x = HMDData.m_pose.m_rotation.x;
 	m_Pose.qRotation.y = HMDData.m_pose.m_rotation.y;
 	m_Pose.qRotation.z = HMDData.m_pose.m_rotation.z;
 	m_Pose.qRotation.w = HMDData.m_pose.m_rotation.w;
-	m_Pose.vecVelocity[0] = HMDData.m_linearVelocity.x;
-	m_Pose.vecVelocity[1] = HMDData.m_linearVelocity.y;
-	m_Pose.vecVelocity[2] = HMDData.m_linearVelocity.z;
+	//m_Pose.vecVelocity[0] = HMDData.m_linearVelocity.x;
+	//m_Pose.vecVelocity[1] = HMDData.m_linearVelocity.y;
+	//m_Pose.vecVelocity[2] = HMDData.m_linearVelocity.z;
 	//m_Pose.vecAngularVelocity[0] = HMDData.m_angularVelocity.x;
 	//m_Pose.vecAngularVelocity[1] = HMDData.m_angularVelocity.y;
 	//m_Pose.vecAngularVelocity[2] = HMDData.m_angularVelocity.z;//Avoid shaking
-	m_Pose.vecAngularAcceleration[0] = HMDData.m_angularAcceleration.x;
-	m_Pose.vecAngularAcceleration[1] = HMDData.m_angularAcceleration.y;
-	m_Pose.vecAngularAcceleration[2] = HMDData.m_angularAcceleration.z;
-	m_Pose.vecAcceleration[0] = HMDData.m_linearAcceleration.x;
-	m_Pose.vecAcceleration[1] = HMDData.m_linearAcceleration.y;
-	m_Pose.vecAcceleration[2] = HMDData.m_linearAcceleration.z;
+	//m_Pose.vecAngularAcceleration[0] = HMDData.m_angularAcceleration.x;
+	//m_Pose.vecAngularAcceleration[1] = HMDData.m_angularAcceleration.y;
+	//m_Pose.vecAngularAcceleration[2] = HMDData.m_angularAcceleration.z;
+	//m_Pose.vecAcceleration[0] = HMDData.m_linearAcceleration.x;
+	//m_Pose.vecAcceleration[1] = HMDData.m_linearAcceleration.y;
+	//m_Pose.vecAcceleration[2] = HMDData.m_linearAcceleration.z;
 	if (HMDData.m_flags == HY_TRACKING_NONE) {
 		m_Pose.result = vr::TrackingResult_Uninitialized;
 		m_Pose.poseIsValid = false;
