@@ -15,6 +15,8 @@
 #include <string.h>
 using namespace vr;
 
+class ServerDriver;
+
 class ServerDriver : public vr::IServerTrackedDeviceProvider
 {
 public:
@@ -25,8 +27,10 @@ public:
 	virtual bool ShouldBlockStandbyMode() override;
 	virtual void EnterStandby() override;
 	virtual void LeaveStandby() override;
+	static ServerDriver* self;
 private:
-	void UpdateHyPose(const HyTrackingState& newData,bool leftOrRight);
+	HyController* HyLeftController;
+	HyController* HyRightController;
 	void UpdateHaptic(VREvent_t& eventHandle);
 	void UpdateHyKey(HySubDevice device, HyInputState type);
 	void UpdateControllerBatteryThread();
@@ -35,8 +39,6 @@ private:
 #ifdef USE_HMD
 	HyHMD* HyHead;
 #endif // USE_HMD
-	HyController* HyLeftController;
-	HyController* HyRightController;
 
 	HyTrackingState trackInform;
 
@@ -51,4 +53,5 @@ private:
 	void UpdatePoseThread();
 	void Send_haptic_event_thread();
 	void UpdateKeyThread();
+	static void UpdateHyPose(const HyTrackingState& newData, bool leftOrRight);
 };

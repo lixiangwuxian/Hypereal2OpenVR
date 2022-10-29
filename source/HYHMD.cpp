@@ -3,7 +3,8 @@
 #pragma comment(lib,"d3d11.lib")
 using namespace vr;
 
-HyHMD::HyHMD(std::string id, HyDevice* Device) {
+HyHMD::HyHMD(std::string id, HyDevice* Device, UpdateHyPoseCallBack* fptr_UpdateHyPose) {
+	m_fptr_UpdateHyPose = fptr_UpdateHyPose;
 	m_ulPropertyContainer = vr::k_ulInvalidPropertyContainer;
 	m_sSerialNumber = id;
 	m_sModelNumber = "";
@@ -228,16 +229,15 @@ ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
 
 void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSize)
 {
+	m_nFrameCounter = pPresentInfo->nFrameId;
 	m_pTexture = GetSharedTexture((HANDLE)pPresentInfo->backbufferTextureHandle);
 	m_pKeyedMutex = NULL;
 	m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
-	m_tLastSubmitTime = clock();
 	if (m_pKeyedMutex->AcquireSync(0, 100) != S_OK)
 	{
 		m_pKeyedMutex->Release();
 		return;
-	}//wait randering
-	m_nFrameCounter = pPresentInfo->nFrameId;
+	}//go randering
 }
 
 void HyHMD::WaitForPresent()
@@ -245,8 +245,13 @@ void HyHMD::WaitForPresent()
 	HyTrackingState trackInform;
 	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, m_nFrameCounter, trackInform);
 	UpdatePose(trackInform);
+	HMDDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_LEFT, m_nFrameCounter, trackInform);
+	(*m_fptr_UpdateHyPose)(trackInform, true);
+	HMDDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_RIGHT, m_nFrameCounter, trackInform);
+	(*m_fptr_UpdateHyPose)(trackInform, false);
 	m_DispTexDesc.m_texture = m_pTexture;
-	m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
+	m_tLastSubmitTime = clock();
+	m_DispHandle->Submit(m_nFrameCounter+1, &m_DispTexDesc, 1);
 	if (m_pKeyedMutex)
 	{
 		m_pKeyedMutex->ReleaseSync(0);
@@ -332,28 +337,28 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 	m_Pose.result = vr::TrackingResult_Running_OK;
 	m_Pose.poseIsValid = true;
 	m_Pose.deviceIsConnected = true;
-	//m_Pose.vecPosition[0] = HMDData.m_pose.m_position.x;
-	//m_Pose.vecPosition[1] = HMDData.m_pose.m_position.y;
-	//m_Pose.vecPosition[2] = HMDData.m_pose.m_position.z;
-	m_Pose.vecPosition[0] = (eyePoses[0].m_position.x + eyePoses[1].m_position.x) / 2;
+	m_Pose.vecPosition[0] = HMDData.m_pose.m_position.x;
+	m_Pose.vecPosition[1] = HMDData.m_pose.m_position.y;
+	m_Pose.vecPosition[2] = HMDData.m_pose.m_position.z;
+	/*m_Pose.vecPosition[0] = (eyePoses[0].m_position.x + eyePoses[1].m_position.x) / 2;
 	m_Pose.vecPosition[1] = (eyePoses[0].m_position.y + eyePoses[1].m_position.y) / 2;
-	m_Pose.vecPosition[2] = (eyePoses[0].m_position.z + eyePoses[1].m_position.z) / 2;
+	m_Pose.vecPosition[2] = (eyePoses[0].m_position.z + eyePoses[1].m_position.z) / 2;*/
 	m_Pose.qRotation.x = HMDData.m_pose.m_rotation.x;
 	m_Pose.qRotation.y = HMDData.m_pose.m_rotation.y;
 	m_Pose.qRotation.z = HMDData.m_pose.m_rotation.z;
 	m_Pose.qRotation.w = HMDData.m_pose.m_rotation.w;
-	//m_Pose.vecVelocity[0] = HMDData.m_linearVelocity.x;
-	//m_Pose.vecVelocity[1] = HMDData.m_linearVelocity.y;
-	//m_Pose.vecVelocity[2] = HMDData.m_linearVelocity.z;
+	m_Pose.vecVelocity[0] = HMDData.m_linearVelocity.x;
+	m_Pose.vecVelocity[1] = HMDData.m_linearVelocity.y;
+	m_Pose.vecVelocity[2] = HMDData.m_linearVelocity.z;
 	//m_Pose.vecAngularVelocity[0] = HMDData.m_angularVelocity.x;
 	//m_Pose.vecAngularVelocity[1] = HMDData.m_angularVelocity.y;
 	//m_Pose.vecAngularVelocity[2] = HMDData.m_angularVelocity.z;//Avoid shaking
-	//m_Pose.vecAngularAcceleration[0] = HMDData.m_angularAcceleration.x;
-	//m_Pose.vecAngularAcceleration[1] = HMDData.m_angularAcceleration.y;
-	//m_Pose.vecAngularAcceleration[2] = HMDData.m_angularAcceleration.z;
-	//m_Pose.vecAcceleration[0] = HMDData.m_linearAcceleration.x;
-	//m_Pose.vecAcceleration[1] = HMDData.m_linearAcceleration.y;
-	//m_Pose.vecAcceleration[2] = HMDData.m_linearAcceleration.z;
+	m_Pose.vecAngularAcceleration[0] = HMDData.m_angularAcceleration.x;
+	m_Pose.vecAngularAcceleration[1] = HMDData.m_angularAcceleration.y;
+	m_Pose.vecAngularAcceleration[2] = HMDData.m_angularAcceleration.z;
+	m_Pose.vecAcceleration[0] = HMDData.m_linearAcceleration.x;
+	m_Pose.vecAcceleration[1] = HMDData.m_linearAcceleration.y;
+	m_Pose.vecAcceleration[2] = HMDData.m_linearAcceleration.z;
 	if (HMDData.m_flags == HY_TRACKING_NONE) {
 		m_Pose.result = vr::TrackingResult_Uninitialized;
 		m_Pose.poseIsValid = false;

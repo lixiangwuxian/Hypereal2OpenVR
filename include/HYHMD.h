@@ -6,6 +6,9 @@
 #include<d3d11.h>
 #include<time.h>
 
+typedef void(UpdateHyPoseCallBack)(const HyTrackingState& newData, bool leftOrRight);
+
+
 
 struct SharedTextureEntry_t
 {
@@ -18,7 +21,7 @@ using namespace vr;
 class HyHMD:public ITrackedDeviceServerDriver, public IVRDisplayComponent, public IVRVirtualDisplay
 {
 public:
-	HyHMD(std::string id, HyDevice* Device);
+	HyHMD(std::string id, HyDevice* Device, UpdateHyPoseCallBack fptr_UpdateHyPose);
 	~HyHMD();
 	virtual EVRInitError Activate(uint32_t unObjectId);
 	virtual void Deactivate();
@@ -58,6 +61,7 @@ public:
 	
 
 private:
+	UpdateHyPoseCallBack* m_fptr_UpdateHyPose;
 	void initDisplayConfig();
 	void viewMatrixToRaw();
 	void initPos();
@@ -76,11 +80,6 @@ private:
 	int32_t m_nWindowHeight;
 	int32_t m_nRenderWidth;
 	int32_t m_nRenderHeight;
-	int32_t m_iEyeGapOff;
-	float m_fDistortionK1 = 0.6;
-	float m_fDistortionK2 = 0.6;
-	float m_fZoomWidth = 1;
-	float m_fZoomHeight = 1;
 
 	SharedTextures_t m_SharedTextureCache;
 	ID3D11Texture2D* GetSharedTexture(HANDLE hSharedTexture);
