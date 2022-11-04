@@ -229,11 +229,11 @@ ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
 
 void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSize)
 {
-	m_nFrameCounter = pPresentInfo->nFrameId;
+	m_nFrameCounter +=1;
 	m_pTexture = GetSharedTexture((HANDLE)pPresentInfo->backbufferTextureHandle);
 	m_pKeyedMutex = NULL;
 	m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
-	if (m_pKeyedMutex->AcquireSync(0, 100) != S_OK)
+	if (m_pKeyedMutex->AcquireSync(0, 50) != S_OK)
 	{
 		m_pKeyedMutex->Release();
 		return;
@@ -242,6 +242,7 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 
 void HyHMD::WaitForPresent()
 {
+	m_tLastSubmitTime = clock();
 	HyTrackingState trackInform;
 	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, m_nFrameCounter, trackInform);
 	UpdatePose(trackInform);
@@ -250,19 +251,25 @@ void HyHMD::WaitForPresent()
 	HMDDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_RIGHT, m_nFrameCounter, trackInform);
 	(*m_fptr_UpdateHyPose)(trackInform, false);
 	m_DispTexDesc.m_texture = m_pTexture;
-	m_tLastSubmitTime = clock();
-	m_DispHandle->Submit(m_nFrameCounter+1, &m_DispTexDesc, 1);
+	m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
+	m_tLastVsyncTime = clock();
 	if (m_pKeyedMutex)
 	{
 		m_pKeyedMutex->ReleaseSync(0);
 		m_pKeyedMutex->Release();
 	}
+	
 }
 
 bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
-	*pfSecondsSinceLastVsync = (float)(clock() - m_tLastSubmitTime) / CLOCKS_PER_SEC;
+	*pfSecondsSinceLastVsync = (float)(clock() - m_tLastVsyncTime) / CLOCKS_PER_SEC;
 	*pulFrameCounter = m_nFrameCounter;
+	if (m_tLastVsyncTime < m_tLastSubmitTime) {
+		m_uDropFrames++;
+	}
+	*pulFrameCounter -= m_uDropFrames;
+	DriverLog("Submmit Time:%d", m_tLastVsyncTime-m_tLastSubmitTime);
 	return true;
 }
 
@@ -292,7 +299,7 @@ void HyHMD::initPos()
 
 	m_Pose.vecDriverFromHeadTranslation[0] =  0.00f;
 	m_Pose.vecDriverFromHeadTranslation[1] = -0.009f;
-	m_Pose.vecDriverFromHeadTranslation[2] = -0.148f;//to adjust..
+	m_Pose.vecDriverFromHeadTranslation[2] = -0.148f;//seems good
 
 	m_Pose.vecAcceleration[0] = 0.0;
 	m_Pose.vecAcceleration[1] = 0.0;

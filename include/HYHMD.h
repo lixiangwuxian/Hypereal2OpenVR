@@ -80,12 +80,14 @@ private:
 	int32_t m_nWindowHeight;
 	int32_t m_nRenderWidth;
 	int32_t m_nRenderHeight;
+	ID3D11Texture2D* m_pFlushTexture;
 
 	SharedTextures_t m_SharedTextureCache;
 	ID3D11Texture2D* GetSharedTexture(HANDLE hSharedTexture);
 	float m_flAdditionalLatencyInSeconds = 0.01f;
-	double m_flLastVsyncTimeInSeconds;
+	clock_t m_tLastVsyncTime;
 	clock_t m_tLastSubmitTime;
+	uint32_t m_uDropFrames;
 	volatile uint32_t m_nFrameCounter = 0;
 	D3D11_TEXTURE2D_DESC desc;
 	HyGraphicsContext* m_DispHandle;
