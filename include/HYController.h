@@ -49,19 +49,21 @@ private:
 	vr::PropertyContainerHandle_t m_ulPropertyContainer;
 
 	//update controller Data Data To Openvr
-	vr::VRInputComponentHandle_t  m_system;			  // "/input/system/click"
-	vr::VRInputComponentHandle_t  m_grip;		      // "/input/grip/click"
-	vr::VRInputComponentHandle_t  m_grip_value;		  // "/input/grip/value"
-	vr::VRInputComponentHandle_t  m_application_menu; // "/input/application_menu/click"
-	vr::VRInputComponentHandle_t  m_trigger;          // "/input/trigger/click"
-	vr::VRInputComponentHandle_t  m_trigger_value;    // "/input/trigger/value"
-	vr::VRInputComponentHandle_t  m_trackpad;		  // "/input/trackpad/click"
-	vr::VRInputComponentHandle_t  m_touch;            // "/input/trackpad/touch"
-	vr::VRInputComponentHandle_t  m_trackpadx;		  // "/input/trackpad/x"
-	vr::VRInputComponentHandle_t  m_trackpady;		  // "/input/trackpad/y"
-	vr::VRInputComponentHandle_t  m_out_Haptic;       // "/output/haptic"
+	vr::VRInputComponentHandle_t m_system;			  // "/input/system/click"
+	vr::VRInputComponentHandle_t m_grip;		      // "/input/grip/click"
+	vr::VRInputComponentHandle_t m_grip_value;		  // "/input/grip/value"
+	vr::VRInputComponentHandle_t m_application_menu; // "/input/application_menu/click"
+	vr::VRInputComponentHandle_t m_trigger;          // "/input/trigger/click"
+	vr::VRInputComponentHandle_t m_trigger_value;    // "/input/trigger/value"
+	vr::VRInputComponentHandle_t m_trackpad;		  // "/input/trackpad/click"
+	vr::VRInputComponentHandle_t m_touch;            // "/input/trackpad/touch"
+	vr::VRInputComponentHandle_t m_trackpadx;		  // "/input/trackpad/x"
+	vr::VRInputComponentHandle_t m_trackpady;		  // "/input/trackpad/y"
+	vr::VRInputComponentHandle_t m_out_Haptic;       // "/output/haptic"
+
 #ifdef SIMULATE_OCULUS_TOUCH
-	vr::VRInputComponentHandle_t  m_system_for_oculus;
+	vr::VRInputComponentHandle_t m_system_for_oculus;
+	vr::VRInputComponentHandle_t m_nonexistence; 
 #endif // SIMULATE_OCULUS_TOUCH
 
 
