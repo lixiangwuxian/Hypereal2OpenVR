@@ -87,7 +87,7 @@ void* HyHMD::GetComponent(const char* pchComponentNameAndVersion) {
 	}
 	if (_stricmp(pchComponentNameAndVersion, IVRVirtualDisplay_Version) == 0) {
 #ifndef DISPLAY_DEBUG
-		return static_cast<IVRVirtualDisplay*>(this);//commit this to get display on screen
+		return static_cast<IVRVirtualDisplay*>(this);
 #endif
 	}
 	return nullptr;
@@ -263,14 +263,16 @@ void HyHMD::WaitForPresent()
 
 bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
+	/*
 	*pfSecondsSinceLastVsync = (float)(clock() - m_tLastVsyncTime) / CLOCKS_PER_SEC;
 	*pulFrameCounter = m_nFrameCounter;
 	if (m_tLastVsyncTime < m_tLastSubmitTime) {
 		m_uDropFrames++;
 	}
 	*pulFrameCounter -= m_uDropFrames;
-	DriverLog("Submmit Time:%d", m_tLastVsyncTime-m_tLastSubmitTime);
-	return true;
+	//DriverLog("Submmit Time:%d", m_tLastVsyncTime-m_tLastSubmitTime);
+	*/
+	return false;//Just don't implement this
 }
 
 //private
