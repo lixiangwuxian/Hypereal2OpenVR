@@ -26,18 +26,13 @@ public:
 	virtual EVRInitError Activate(uint32_t unObjectId);
 	virtual void Deactivate();
 	virtual void EnterStandby();
-
 	virtual void* GetComponent(const char* pchComponentNameAndVersion);
 	virtual void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize);
-
 	virtual DriverPose_t GetPose();
-
 	PropertyContainerHandle_t GetPropertyContainer();
-
 	std::string GetSerialNumber();
-
 	void UpdatePose(HyTrackingState ctrData);
-
+	
 	//IVRdisplaycomponent
 	
 	virtual void GetWindowBounds(int32_t* pnX, int32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight);
@@ -63,10 +58,11 @@ public:
 private:
 	UpdateHyPoseCallBack* m_fptr_UpdateHyPose;
 	void initDisplayConfig();
-	void viewMatrixToRaw();
 	void initPos();
-	HyDevice* HMDDevice;
+	bool copyToStaging();
+	ID3D11Texture2D* GetSharedTexture(HANDLE hSharedTexture);
 	DriverPose_t GetPose(HyTrackingState ctrData);
+	HyDevice* HMDDevice;
 	vr::DriverPose_t  m_Pose;
 	vr::TrackedDeviceIndex_t m_unObjectId;
 	vr::PropertyContainerHandle_t m_ulPropertyContainer;
@@ -80,11 +76,8 @@ private:
 	int32_t m_nWindowHeight;
 	int32_t m_nRenderWidth;
 	int32_t m_nRenderHeight;
-	ID3D11Texture2D* m_pFlushTexture;
-
 	SharedTextures_t m_SharedTextureCache;
-	ID3D11Texture2D* GetSharedTexture(HANDLE hSharedTexture);
-	float m_flAdditionalLatencyInSeconds = 0.01f;
+	float m_flAdditionalLatencyInSeconds = 0.00f;
 	clock_t m_tLastVsyncTime;
 	clock_t m_tLastSubmitTime;
 	uint32_t m_uDropFrames;
@@ -96,5 +89,8 @@ private:
 	ID3D11Device* pD3D11Device;
 	ID3D11DeviceContext* pD3D11DeviceContext;
 	ID3D11Texture2D* m_pTexture;
+	ID3D11Texture2D* m_pFlushTexture;
+	ID3D11Texture2D* m_pStagingTexture;
 	IDXGIKeyedMutex* m_pKeyedMutex;
+	clock_t pre;
 };

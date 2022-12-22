@@ -65,8 +65,8 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext* DriverContext) {
 	HyStartup();
 	HyResult ifCreate = HyCreateInterface(HyDevice_InterfaceName, 0, &HyTrackingDevice);
 	
-	BoardcastThreadWorker = std::thread::thread(&Boardcast);
-	BoardcastThreadWorker.detach();
+	//BoardcastThreadWorker = std::thread::thread(&Boardcast);
+	//BoardcastThreadWorker.detach();
 
 	ErrorAlarmThreadWorker = std::thread::thread(&ErrorAlarm, ifCreate);
 	ErrorAlarmThreadWorker.detach();
