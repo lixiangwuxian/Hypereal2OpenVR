@@ -5,8 +5,8 @@ using namespace vr;
 
 
 
-HyHMD::HyHMD(std::string id, HyDevice* Device, UpdateHyPoseCallBack* fptr_UpdateHyPose) {
-	m_fptr_UpdateHyPose = fptr_UpdateHyPose;
+HyHMD::HyHMD(std::string id, HyDevice* Device) {
+	//m_fptr_UpdateHyPose = fptr_UpdateHyPose;
 	m_ulPropertyContainer = vr::k_ulInvalidPropertyContainer;
 	m_sSerialNumber = id;
 	m_sModelNumber = "";
@@ -282,16 +282,21 @@ void HyHMD::WaitForPresent()
 	clock_t done = clock();
 	//DriverLog("time:%d", done - pre); 
 	if (done - pre > 11) {
-		DriverLog("Frame drop in %d!!!!", done - pre);
+		DriverLog("Frame drop in %dms!!!!", done - pre);
+		if (m_pKeyedMutex)
+		{
+			m_pKeyedMutex->ReleaseSync(0);
+			m_pKeyedMutex->Release();
+		}
 		return;
 	}
 	HyTrackingState trackInform;
 	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, 0, trackInform);
 	UpdatePose(trackInform);
-	HMDDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_LEFT, 0, trackInform);
-	(*m_fptr_UpdateHyPose)(trackInform, true);
-	HMDDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_RIGHT, 0, trackInform);
-	(*m_fptr_UpdateHyPose)(trackInform, false);
+	//HMDDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_LEFT, 0, trackInform);
+	//(*m_fptr_UpdateHyPose)(trackInform, true);
+	//HMDDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_RIGHT, 0, trackInform);
+	//(*m_fptr_UpdateHyPose)(trackInform, false);
 	m_DispTexDesc.m_texture = m_pTexture;
 	m_DispHandle->Submit(0, &m_DispTexDesc, 1);//takes about 11ms since last submit
 	if (m_pKeyedMutex)

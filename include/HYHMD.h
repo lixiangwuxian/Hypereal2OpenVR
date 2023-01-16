@@ -6,7 +6,7 @@
 #include<d3d11.h>
 #include<time.h>
 
-typedef void(UpdateHyPoseCallBack)(const HyTrackingState& newData, bool leftOrRight);
+//typedef void(UpdateHyPoseCallBack)(const HyTrackingState& newData, bool leftOrRight);
 
 
 
@@ -21,7 +21,7 @@ using namespace vr;
 class HyHMD:public ITrackedDeviceServerDriver, public IVRDisplayComponent, public IVRVirtualDisplay
 {
 public:
-	HyHMD(std::string id, HyDevice* Device, UpdateHyPoseCallBack fptr_UpdateHyPose);
+	HyHMD(std::string id, HyDevice* Device);
 	~HyHMD();
 	virtual EVRInitError Activate(uint32_t unObjectId);
 	virtual void Deactivate();
@@ -56,7 +56,6 @@ public:
 	
 
 private:
-	UpdateHyPoseCallBack* m_fptr_UpdateHyPose;
 	void initDisplayConfig();
 	void initPos();
 	bool copyToStaging();
@@ -76,6 +75,7 @@ private:
 	int32_t m_nWindowHeight;
 	int32_t m_nRenderWidth;
 	int32_t m_nRenderHeight;
+	//virtual display
 	SharedTextures_t m_SharedTextureCache;
 	float m_flAdditionalLatencyInSeconds = 0.00f;
 	clock_t m_tLastVsyncTime;
@@ -83,14 +83,14 @@ private:
 	uint32_t m_uDropFrames;
 	volatile uint32_t m_nFrameCounter = 0;
 	D3D11_TEXTURE2D_DESC desc;
-	HyGraphicsContext* m_DispHandle;
+	HyGraphicsContext* m_DispHandle=nullptr;
 	HyGraphicsContextDesc m_DispDesc;
 	HyTextureDesc m_DispTexDesc;
-	ID3D11Device* pD3D11Device;
+	ID3D11Device* pD3D11Device = nullptr;
 	ID3D11DeviceContext* pD3D11DeviceContext;
-	ID3D11Texture2D* m_pTexture;
-	ID3D11Texture2D* m_pFlushTexture;
-	ID3D11Texture2D* m_pStagingTexture;
-	IDXGIKeyedMutex* m_pKeyedMutex;
+	ID3D11Texture2D* m_pTexture = nullptr;
+	ID3D11Texture2D* m_pFlushTexture = nullptr;
+	ID3D11Texture2D* m_pStagingTexture = nullptr;
+	IDXGIKeyedMutex* m_pKeyedMutex = nullptr;
 	clock_t pre;
 };

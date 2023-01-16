@@ -3,14 +3,14 @@ dynamic link library which convert OpenVR call to Hypereal api call
 
 This code is inspired from [Relativty Driver](https://github.com/relativty/Relativty) and nolo code simple (controller part for nolo cv1).
 
-They are combined, removed unnecessary parts ,and their functions&calls were almost fully rewrited.
+They are combined, removed unnecessary parts, and their functions&calls were almost fully rewrite.
 
 -----
 
 # Build
 use visual studio 2022 open the `SteamVR4Hypereal.sln`, press `CTRL`+`B` to build.
 
-dll file is in `revive_hypereal\bin\win64`
+dll file will be placed in `revive_hypereal\bin\win64`
 
 -----
 

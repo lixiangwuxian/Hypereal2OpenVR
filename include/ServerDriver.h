@@ -27,31 +27,29 @@ public:
 	virtual bool ShouldBlockStandbyMode() override;
 	virtual void EnterStandby() override;
 	virtual void LeaveStandby() override;
-	static ServerDriver* self;
+	//static ServerDriver* self;
 private:
-	HyController* HyLeftController;
-	HyController* HyRightController;
+	HyController* HyLeftController = nullptr;
+	HyController* HyRightController = nullptr;
 	void UpdateHaptic(VREvent_t& eventHandle);
 	void UpdateHyKey(HySubDevice device, HyInputState type);
 	void UpdateControllerBatteryThread();
 	HyDevice* HyTrackingDevice= nullptr;
 
 #ifdef USE_HMD
-	HyHMD* HyHead;
+	HyHMD* HyHead=nullptr;
 #endif // USE_HMD
 
 	HyTrackingState trackInform;
 
 	bool m_bEventThreadRunning;
-	std::thread updatePoseThreadWorker;
-	std::thread send_haptic_thread_worker;
-	std::thread updateKeyThreadWorker;
-	std::thread checkBatteryThreadWorker;
+	std::thread m_tUpdateControllerThreadWorker;
+	std::thread m_tCheckBatteryThreadWorker;
 
-	volatile uint32_t* frameID;
+	volatile uint32_t* m_pframeID;
 	
-	void UpdatePoseThread();
+	void UpdateControllerThread();
 	void Send_haptic_event_thread();
 	void UpdateKeyThread();
-	static void UpdateHyPose(const HyTrackingState& newData, bool leftOrRight);
+	void UpdateHyControllerState(const HyTrackingState& newData, bool leftOrRight);
 };
