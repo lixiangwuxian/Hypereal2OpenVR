@@ -367,3 +367,5 @@ DriverLog/Releasex64
 Hypereal_OVRDriverx64
 DriverLog
 /DriverLog/Releasex64/DriverLog.vcxproj.FileListAbsolute.txt
+/source/ScreenGrab/sgb.cpp
+/source/ScreenGrab/sgb.h

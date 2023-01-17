@@ -240,7 +240,7 @@ DriverPose_t HyController::GetPose(HyTrackingState ctrData)
 	m_Pose.vecVelocity[0] = ctrData.m_linearVelocity.x;
 	m_Pose.vecVelocity[1] = ctrData.m_linearVelocity.y;
 	m_Pose.vecVelocity[2] = ctrData.m_linearVelocity.z;
-	///m_Pose.vecAngularVelocity[0] = ctrData.m_angularVelocity.x;
+	m_Pose.vecAngularVelocity[0] = ctrData.m_angularVelocity.x;
 	//m_Pose.vecAngularVelocity[1] = ctrData.m_angularVelocity.y;
 	//m_Pose.vecAngularVelocity[2] = ctrData.m_angularVelocity.z;//Avoid shaking...these data from sdk is too sharp
 	m_Pose.vecAngularAcceleration[0] = ctrData.m_angularAcceleration.x;

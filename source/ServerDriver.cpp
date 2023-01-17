@@ -1,8 +1,6 @@
 #include "ServerDriver.h"
 #pragma comment(lib,"shell32.lib")
 #pragma comment(lib, "User32.lib")
-std::thread ErrorAlarmThreadWorker;
-std::thread BoardcastThreadWorker;
 void ErrorAlarm(HyResult result);
 void Boardcast();
 
@@ -12,19 +10,19 @@ void ServerDriver::UpdateHyControllerState(const HyTrackingState& newData, bool 
 	bool bHasEvent = false;
 	bHasEvent = vr::VRServerDriverHost()->PollNextEvent(&pEventHandle, sizeof(VREvent_t));
 	HyInputState keyInput;
-	this->HyTrackingDevice->GetControllerInputState(HY_SUBDEV_CONTROLLER_LEFT, keyInput);
+	this->m_pHyTrackingDevice->GetControllerInputState(HY_SUBDEV_CONTROLLER_LEFT, keyInput);
 	this->UpdateHyKey(HY_SUBDEV_CONTROLLER_LEFT, keyInput);
-	this->HyTrackingDevice->GetControllerInputState(HY_SUBDEV_CONTROLLER_RIGHT, keyInput);
+	this->m_pHyTrackingDevice->GetControllerInputState(HY_SUBDEV_CONTROLLER_RIGHT, keyInput);
 	this->UpdateHyKey(HY_SUBDEV_CONTROLLER_RIGHT, keyInput);
 	if (bHasEvent)
 	{
 		this->UpdateHaptic(pEventHandle);
 	}
 	if (leftOrRight) {
-		 this->HyLeftController->UpdatePose(newData);
+		 this->m_pHyLeftController->UpdatePose(newData);
 	}
 	else {
-		this->HyRightController->UpdatePose(newData);
+		this->m_pHyRightController->UpdatePose(newData);
 	}
 }
 
@@ -61,13 +59,11 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext* DriverContext) {
 	}
 	InitDriverLog(vr::VRDriverLog());
 	HyStartup();
-	HyResult ifCreate = HyCreateInterface(HyDevice_InterfaceName, 0, &HyTrackingDevice);
+	HyResult ifCreate = HyCreateInterface(HyDevice_InterfaceName, 0, &m_pHyTrackingDevice);
 	
-	//BoardcastThreadWorker = std::thread::thread(&Boardcast);
-	//BoardcastThreadWorker.detach();
+	//std::thread::thread(&Boardcast).detach();
 
-	ErrorAlarmThreadWorker = std::thread::thread(&ErrorAlarm, ifCreate);
-	ErrorAlarmThreadWorker.detach();
+	std::thread::thread(&ErrorAlarm, ifCreate).detach();
 
 	while (killProcessByName(L"bkdrop.exe")) {
 		Sleep(5000);
@@ -78,26 +74,24 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext* DriverContext) {
 	}
 
 #ifdef USE_HMD
-	HyHead = new HyHMD("HYHMD@LXWX",HyTrackingDevice);
+	m_pHyHead = new HyHMD("HYHMD@LXWX",m_pHyTrackingDevice);
 #endif // USE_HMD
-	HyLeftController = new HyController("LctrTEST@LXWX", TrackedControllerRole_LeftHand,HyTrackingDevice);
-	HyRightController = new HyController("RctrTEST@LXWX", TrackedControllerRole_RightHand,HyTrackingDevice);
+	m_pHyLeftController = new HyController("LctrTEST@LXWX", TrackedControllerRole_LeftHand,m_pHyTrackingDevice);
+	m_pHyRightController = new HyController("RctrTEST@LXWX", TrackedControllerRole_RightHand,m_pHyTrackingDevice);
 
 #ifdef USE_HMD
-	m_pframeID=HyHead->getFrameIDptr();
-	vr::VRServerDriverHost()->TrackedDeviceAdded(HyHead->GetSerialNumber().c_str(), vr::TrackedDeviceClass_HMD, this->HyHead);
+	m_pframeID=m_pHyHead->getFrameIDptr();
+	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyHead->GetSerialNumber().c_str(), vr::TrackedDeviceClass_HMD, this->m_pHyHead);
 #endif // USE_HMD
-	vr::VRServerDriverHost()->TrackedDeviceAdded(HyLeftController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, this->HyLeftController);
-	vr::VRServerDriverHost()->TrackedDeviceAdded(HyRightController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, this->HyRightController);
+	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyLeftController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, this->m_pHyLeftController);
+	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyRightController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, this->m_pHyRightController);
 
 	m_bEventThreadRunning = false;
 	if (!m_bEventThreadRunning)
 	{
 		m_bEventThreadRunning = true;
-		m_tUpdateControllerThreadWorker = std::thread::thread(&ServerDriver::UpdateControllerThread, this);
-		m_tUpdateControllerThreadWorker.detach();
-		m_tCheckBatteryThreadWorker = std::thread::thread(&ServerDriver::UpdateControllerBatteryThread, this);
-		m_tCheckBatteryThreadWorker.detach();
+		std::thread::thread(&ServerDriver::UpdateControllerThread, this).detach();
+		std::thread::thread(&ServerDriver::UpdateControllerBatteryThread, this).detach();
 	}
 	return vr::VRInitError_None;
 }
@@ -180,19 +174,19 @@ Created By lixiangwuxian@github\n"\
 }
 
 void ServerDriver::Cleanup() {
-	delete this->HyTrackingDevice;
+	delete this->m_pHyTrackingDevice;
 #ifdef USE_HMD
-	delete this->HyHead;
+	delete this->m_pHyHead;
 #endif // USE_HMD
-	delete this->HyLeftController;
-	delete this->HyRightController;
+	delete this->m_pHyLeftController;
+	delete this->m_pHyRightController;
 
-	this->HyTrackingDevice=NULL;
+	this->m_pHyTrackingDevice=NULL;
 #ifdef USE_HMD
-	this->HyHead = NULL;
+	this->m_pHyHead = NULL;
 #endif // USE_HMD
-	this->HyLeftController = NULL;
-	this->HyRightController = NULL;
+	this->m_pHyLeftController = NULL;
+	this->m_pHyRightController = NULL;
 	VR_CLEANUP_SERVER_DRIVER_CONTEXT();
 	HyShutdown();
 }
@@ -214,11 +208,11 @@ void ServerDriver::UpdateHaptic(VREvent_t& eventHandle)
 		duration = fmaxf(15,data.fDurationSeconds*1000);
 		amplitude = fmaxf(0.3, data.fAmplitude);
 		amplitude = fminf(1, data.fAmplitude);
-		if (HyLeftController->GetPropertyContainer() == data.containerHandle) {
-			HyTrackingDevice->SetControllerVibration(HY_SUBDEV_CONTROLLER_LEFT,duration, amplitude);
+		if (m_pHyLeftController->GetPropertyContainer() == data.containerHandle) {
+			m_pHyTrackingDevice->SetControllerVibration(HY_SUBDEV_CONTROLLER_LEFT,duration, amplitude);
 		}
-		else if (HyRightController->GetPropertyContainer() == data.containerHandle) {
-			HyTrackingDevice->SetControllerVibration(HY_SUBDEV_CONTROLLER_RIGHT, duration, amplitude);
+		else if (m_pHyRightController->GetPropertyContainer() == data.containerHandle) {
+			m_pHyTrackingDevice->SetControllerVibration(HY_SUBDEV_CONTROLLER_RIGHT, duration, amplitude);
 		}
 	}
 }
@@ -228,25 +222,25 @@ void ServerDriver::UpdateHaptic(VREvent_t& eventHandle)
 void ServerDriver::UpdateHyKey(HySubDevice device, HyInputState type)
 {
 	if (device == HY_SUBDEV_CONTROLLER_LEFT) {
-		HyLeftController->SendButtonUpdate(type);
+		m_pHyLeftController->SendButtonUpdate(type);
 	}
 	else if(device == HY_SUBDEV_CONTROLLER_RIGHT){
-		HyRightController->SendButtonUpdate(type);
+		m_pHyRightController->SendButtonUpdate(type);
 	}
 }
 
 void ServerDriver::UpdateControllerBatteryThread()
 {
 	int64_t batteryValue = 3;
-	HyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_LEFT);
-	HyLeftController->UpdateBattery(batteryValue);
-	HyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_RIGHT);
-	HyRightController->UpdateBattery(batteryValue);
+	m_pHyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_LEFT);
+	m_pHyLeftController->UpdateBattery(batteryValue);
+	m_pHyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_RIGHT);
+	m_pHyRightController->UpdateBattery(batteryValue);
 	while (true) {
-		HyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_LEFT);
-		HyLeftController->UpdateBattery(batteryValue);
-		HyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_RIGHT);
-		HyRightController->UpdateBattery(batteryValue);
+		m_pHyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_LEFT);
+		m_pHyLeftController->UpdateBattery(batteryValue);
+		m_pHyTrackingDevice->GetIntValue(HY_PROPERTY_DEVICE_BATTERY_INT, batteryValue, HY_SUBDEV_CONTROLLER_RIGHT);
+		m_pHyRightController->UpdateBattery(batteryValue);
 		Sleep(10);
 	}
 }
@@ -257,10 +251,10 @@ void ServerDriver::UpdateControllerThread() {
 	*frameID = 0;
 #endif // !USE_HMD
 	while (m_bEventThreadRunning) {
-		HyTrackingDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_LEFT, 0, trackInform);
-		UpdateHyControllerState(trackInform, true);
-		HyTrackingDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_RIGHT, 0, trackInform);
-		UpdateHyControllerState(trackInform, false);
+		m_pHyTrackingDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_LEFT, 0, m_trackInform);
+		UpdateHyControllerState(m_trackInform, true);
+		m_pHyTrackingDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_RIGHT, 0, m_trackInform);
+		UpdateHyControllerState(m_trackInform, false);
 	}
 }
 
