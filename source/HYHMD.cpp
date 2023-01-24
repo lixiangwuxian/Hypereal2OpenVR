@@ -49,7 +49,7 @@ void HyHMD::initDisplayConfig() {
 EVRInitError HyHMD::Activate(uint32_t unObjectId)
 {
 	m_unObjectId = unObjectId;
-	initPos();
+	InitializePosition();
 	m_ulPropertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_unObjectId);
 	vr::VRProperties()->SetUint64Property(m_ulPropertyContainer, Prop_CurrentUniverseId_Uint64, 2);
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_SerialNumber_String, m_sSerialNumber.c_str());
@@ -307,7 +307,7 @@ bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulF
 
 //private
 
-void HyHMD::initPos()
+void HyHMD::InitializePosition()
 {
 	m_Pose.result = vr::TrackingResult_Running_OK;
 	m_Pose.poseIsValid = true;

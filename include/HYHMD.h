@@ -58,7 +58,7 @@ public:
 
 private:
 	void initDisplayConfig();
-	void initPos();
+	void InitializePosition();
 	bool copyToStaging();
 	ID3D11Texture2D* GetSharedTexture(HANDLE hSharedTexture);
 	DriverPose_t GetPose(HyTrackingState ctrData);
