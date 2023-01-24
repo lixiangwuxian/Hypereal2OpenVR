@@ -29,27 +29,23 @@ public:
 	virtual void LeaveStandby() override;
 	//static ServerDriver* self;
 private:
-	HyController* HyLeftController = nullptr;
-	HyController* HyRightController = nullptr;
+	HyController* m_pHyLeftController = nullptr;
+	HyController* m_pHyRightController = nullptr;
 	void UpdateHaptic(VREvent_t& eventHandle);
 	void UpdateHyKey(HySubDevice device, HyInputState type);
 	void UpdateControllerBatteryThread();
-	HyDevice* HyTrackingDevice= nullptr;
+	HyDevice* m_pHyTrackingDevice= nullptr;
 
 #ifdef USE_HMD
-	HyHMD* HyHead=nullptr;
+	HyHMD* m_pHyHead=nullptr;
 #endif // USE_HMD
 
-	HyTrackingState trackInform;
+	HyTrackingState m_trackInform;
 
 	bool m_bEventThreadRunning;
-	std::thread m_tUpdateControllerThreadWorker;
-	std::thread m_tCheckBatteryThreadWorker;
 
 	volatile uint32_t* m_pframeID;
 	
 	void UpdateControllerThread();
-	void Send_haptic_event_thread();
-	void UpdateKeyThread();
 	void UpdateHyControllerState(const HyTrackingState& newData, bool leftOrRight);
 };

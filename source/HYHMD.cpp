@@ -435,7 +435,8 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 		m_Pose.result = vr::TrackingResult_Fallback_RotationOnly;
 		m_Pose.poseIsValid = false;
 		return m_Pose;
-	}*¶ª×·×Ù²»»ÒÆÁ
+	}*/
+	//¶ª×·×Ù²»»ÒÆÁ
 	return m_Pose;
 }
 

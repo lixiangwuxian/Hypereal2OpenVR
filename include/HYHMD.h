@@ -5,6 +5,7 @@
 #include"driverlog.h"
 #include<d3d11.h>
 #include<time.h>
+#include"FrameCoder.h"
 
 //typedef void(UpdateHyPoseCallBack)(const HyTrackingState& newData, bool leftOrRight);
 
@@ -61,7 +62,7 @@ private:
 	bool copyToStaging();
 	ID3D11Texture2D* GetSharedTexture(HANDLE hSharedTexture);
 	DriverPose_t GetPose(HyTrackingState ctrData);
-	HyDevice* HMDDevice;
+	HyDevice* m_pHMDDevice;
 	vr::DriverPose_t  m_Pose;
 	vr::TrackedDeviceIndex_t m_unObjectId;
 	vr::PropertyContainerHandle_t m_ulPropertyContainer;
@@ -82,15 +83,15 @@ private:
 	clock_t m_tLastSubmitTime;
 	uint32_t m_uDropFrames;
 	volatile uint32_t m_nFrameCounter = 0;
-	D3D11_TEXTURE2D_DESC desc;
-	HyGraphicsContext* m_DispHandle=nullptr;
+	HyGraphicsContext* m_pDispHandle;
 	HyGraphicsContextDesc m_DispDesc;
-	HyTextureDesc m_DispTexDesc;
-	ID3D11Device* pD3D11Device = nullptr;
-	ID3D11DeviceContext* pD3D11DeviceContext;
-	ID3D11Texture2D* m_pTexture = nullptr;
-	ID3D11Texture2D* m_pFlushTexture = nullptr;
-	ID3D11Texture2D* m_pStagingTexture = nullptr;
-	IDXGIKeyedMutex* m_pKeyedMutex = nullptr;
-	clock_t pre;
+	//HyTextureDesc m_DispTexDesc;
+	FrameCoder* m_pFrameCoder;
+	ID3D11Device* m_pD3D11Device;
+	ID3D11DeviceContext* m_pD3D11DeviceContext;
+	ID3D11Texture2D* m_pTexture;
+	ID3D11Texture2D* m_pFlushTexture;
+	ID3D11Texture2D* m_pStagingTexture;
+	IDXGIKeyedMutex* m_pKeyedMutex;
+	//clock_t pre;
 };

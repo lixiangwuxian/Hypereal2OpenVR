@@ -10,19 +10,19 @@ void ServerDriver::UpdateHyControllerState(const HyTrackingState& newData, bool 
 	bool bHasEvent = false;
 	bHasEvent = vr::VRServerDriverHost()->PollNextEvent(&pEventHandle, sizeof(VREvent_t));
 	HyInputState keyInput;
-	this->m_pHyTrackingDevice->GetControllerInputState(HY_SUBDEV_CONTROLLER_LEFT, keyInput);
-	this->UpdateHyKey(HY_SUBDEV_CONTROLLER_LEFT, keyInput);
-	this->m_pHyTrackingDevice->GetControllerInputState(HY_SUBDEV_CONTROLLER_RIGHT, keyInput);
-	this->UpdateHyKey(HY_SUBDEV_CONTROLLER_RIGHT, keyInput);
+	m_pHyTrackingDevice->GetControllerInputState(HY_SUBDEV_CONTROLLER_LEFT, keyInput);
+	UpdateHyKey(HY_SUBDEV_CONTROLLER_LEFT, keyInput);
+	m_pHyTrackingDevice->GetControllerInputState(HY_SUBDEV_CONTROLLER_RIGHT, keyInput);
+	UpdateHyKey(HY_SUBDEV_CONTROLLER_RIGHT, keyInput);
 	if (bHasEvent)
 	{
-		this->UpdateHaptic(pEventHandle);
+		UpdateHaptic(pEventHandle);
 	}
 	if (leftOrRight) {
-		 this->m_pHyLeftController->UpdatePose(newData);
+		 m_pHyLeftController->UpdatePose(newData);
 	}
 	else {
-		this->m_pHyRightController->UpdatePose(newData);
+		m_pHyRightController->UpdatePose(newData);
 	}
 }
 
@@ -81,10 +81,10 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext* DriverContext) {
 
 #ifdef USE_HMD
 	m_pframeID=m_pHyHead->getFrameIDptr();
-	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyHead->GetSerialNumber().c_str(), vr::TrackedDeviceClass_HMD, this->m_pHyHead);
+	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyHead->GetSerialNumber().c_str(), vr::TrackedDeviceClass_HMD, m_pHyHead);
 #endif // USE_HMD
-	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyLeftController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, this->m_pHyLeftController);
-	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyRightController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, this->m_pHyRightController);
+	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyLeftController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_pHyLeftController);
+	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyRightController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_pHyRightController);
 
 	m_bEventThreadRunning = false;
 	if (!m_bEventThreadRunning)
@@ -174,19 +174,19 @@ Created By lixiangwuxian@github\n"\
 }
 
 void ServerDriver::Cleanup() {
-	delete this->m_pHyTrackingDevice;
+	delete m_pHyTrackingDevice;
 #ifdef USE_HMD
-	delete this->m_pHyHead;
+	delete m_pHyHead;
 #endif // USE_HMD
-	delete this->m_pHyLeftController;
-	delete this->m_pHyRightController;
+	delete m_pHyLeftController;
+	delete m_pHyRightController;
 
-	this->m_pHyTrackingDevice=NULL;
+	m_pHyTrackingDevice=NULL;
 #ifdef USE_HMD
-	this->m_pHyHead = NULL;
+	m_pHyHead = NULL;
 #endif // USE_HMD
-	this->m_pHyLeftController = NULL;
-	this->m_pHyRightController = NULL;
+	m_pHyLeftController = NULL;
+	m_pHyRightController = NULL;
 	VR_CLEANUP_SERVER_DRIVER_CONTEXT();
 	HyShutdown();
 }
