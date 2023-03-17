@@ -46,17 +46,15 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext* DriverContext) {
 	while (killProcessByName(L"bkdrop.exe")){
 		Sleep(5000);
 	}
-	
-	if (ifCreate >= 100) {//we got an error.. Don't initialize any device or steamvr would crash.
+	if (ifCreate >= 100) {//Got an error.. Don't initialize any device or steamvr would crash.
 		return vr::VRInitError_None;
 	}
 
 #ifdef USE_HMD
 	m_pHyHead = new HyHMD("HYHMD@LXWX",m_pHyTrackingDevice);
 #endif // USE_HMD
-	m_pHyLeftController = new HyController("LctrTEST@LXWX", TrackedControllerRole_LeftHand,m_pHyTrackingDevice);
-	m_pHyRightController = new HyController("RctrTEST@LXWX", TrackedControllerRole_RightHand,m_pHyTrackingDevice);
-
+	m_pHyLeftController = new HyController("Lctr@LXWX", TrackedControllerRole_LeftHand,m_pHyTrackingDevice);
+	m_pHyRightController = new HyController("Rctr@LXWX", TrackedControllerRole_RightHand,m_pHyTrackingDevice);
 #ifdef USE_HMD
 	m_pframeID=m_pHyHead->getFrameIDptr();
 	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyHead->GetSerialNumber().c_str(), vr::TrackedDeviceClass_HMD, m_pHyHead);

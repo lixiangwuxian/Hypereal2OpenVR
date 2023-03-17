@@ -26,7 +26,7 @@ HyHMD::HyHMD(std::string id, HyDevice* Device) {
 	m_DispDesc.m_mirrorHeight = 1200;
 	m_DispDesc.m_flags = 0;
 	HyResult hr= m_pHMDDevice->CreateGraphicsContext(m_DispDesc, &m_pDispHandle);
-	m_pFrameCoder = new FrameCoder(m_pDispHandle, m_pD3D11Device);
+	m_pFrameCoder = new FrameCoder(m_pDispHandle, m_pD3D11Device,m_pD3D11DeviceContext);
 	//m_DispTexDesc.m_uvOffset = HyVec2{ 0.0f, 0.0f };
 	//m_DispTexDesc.m_uvSize = HyVec2{ 1.0f, 1.0f };
 }
@@ -262,8 +262,9 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	}
 	D3D11_BOX box = { 0, 0, 0, 1, 1, 1 };
 	m_pD3D11DeviceContext->CopySubresourceRegion(m_pFlushTexture, 0, 0, 0, 0, m_pTexture, 0, &box);
-	//pD3D11DeviceContext->Flush();
-	copyToStaging();
+	m_pD3D11DeviceContext->Flush();
+	m_pFrameCoder->copyToStaging(m_pTexture);
+	m_pD3D11DeviceContext->Flush();
 	m_nFrameCounter +=1;
 	//pre = clock();
 	if (m_pKeyedMutex)
@@ -275,6 +276,7 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 
 void HyHMD::WaitForPresent()
 {
+	DriverLog("WaitForPresent start!");
 	if (m_pFlushTexture)
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped = { 0 };
@@ -283,26 +285,19 @@ void HyHMD::WaitForPresent()
 			m_pD3D11DeviceContext->Unmap(m_pFlushTexture, 0);
 		}
 	}
-	//clock_t done = clock();
-	//DriverLog("time:%d", done - pre); 
-	/*if (done - pre > 11) {
-		DriverLog("Frame drop in %dms!!!!", done - pre);
-		if (m_pKeyedMutex)
-		{
-			m_pKeyedMutex->ReleaseSync(0);
-			m_pKeyedMutex->Release();
-		}
-		return;
-	}*/
+	DriverLog("Frame rander done!");
 	HyTrackingState m_trackInform;
 	m_pHMDDevice->GetTrackingState(HY_SUBDEV_HMD, 0, m_trackInform);
 	UpdatePose(m_trackInform);
-	m_pFrameCoder->NewFrameGo(m_pStagingTexture);
+	m_pFrameCoder->NewFrameGo();
+	//m_pStagingTexture = nullptr;
+	DriverLog("WaitForPresent end!");
 }
 
 bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
-	return false;//haven't implement this yet
+	m_pFrameCoder->GetInfoForNextVsync(pfSecondsSinceLastVsync, pulFrameCounter);
+	return true;
 }
 
 //private
@@ -339,36 +334,6 @@ void HyHMD::InitializePosition()
 	m_Pose.vecAngularAcceleration[0] = 0.0;
 	m_Pose.vecAngularAcceleration[1] = 0.0;
 	m_Pose.vecAngularAcceleration[2] = 0.0;
-}
-
-bool HyHMD::copyToStaging()
-{
-	if (m_pStagingTexture == nullptr)
-	{
-		D3D11_TEXTURE2D_DESC srcDesc;
-		m_pTexture->GetDesc(&srcDesc);
-
-		D3D11_TEXTURE2D_DESC stagingTextureDesc;
-		ZeroMemory(&stagingTextureDesc, sizeof(stagingTextureDesc));
-		stagingTextureDesc.Width = srcDesc.Width;
-		stagingTextureDesc.Height = srcDesc.Height;
-		stagingTextureDesc.Format = srcDesc.Format;
-		stagingTextureDesc.MipLevels = 1;
-		stagingTextureDesc.ArraySize = 1;
-		stagingTextureDesc.SampleDesc.Count = 1;
-		stagingTextureDesc.Usage = D3D11_USAGE_STAGING;
-		stagingTextureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-
-		if (FAILED(m_pD3D11Device->CreateTexture2D(&stagingTextureDesc, NULL, &m_pStagingTexture)))
-		{
-			DriverLog("Failed to create staging texture!");
-			return false;
-		}
-	}
-
-	m_pD3D11DeviceContext->CopyResource(m_pStagingTexture, m_pTexture);
-	//DriverLog("Copyed");
-	return true;
 }
 
 DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)

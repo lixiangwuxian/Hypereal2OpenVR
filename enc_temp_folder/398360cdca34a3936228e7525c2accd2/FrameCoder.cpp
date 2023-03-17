@@ -16,7 +16,7 @@ FrameCoder::FrameCoder(HyGraphicsContext* pGraphicsDevivce, ID3D11Device* pD3D11
 
 void FrameCoder::NewFrameGo()
 {
-	DriverLog("Pushed New Frame!");
+	//DriverLog("Pushed New Frame!");
 	m_pTextureSem->release(); 
 	//m_pHyGraphicsDevivce->Submit(0, &m_DispTexDesc, 1);
 	//VsyncLoop();
@@ -25,7 +25,7 @@ void FrameCoder::NewFrameGo()
 void FrameCoder::GetInfoForNextVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
 	*pfSecondsSinceLastVsync = (float)(clock_t() - m_cLastVsyncTime) / 1000;
-	*pfSecondsSinceLastVsync -= 0.011;
+	//*pfSecondsSinceLastVsync -= 0.011;
 	*pulFrameCounter = m_uFramesCount + 1;
 }
 
@@ -44,14 +44,10 @@ void FrameCoder::VsyncLoop()
 			continue;
 		}
 		DriverLog("AcquireSync Successful!");
-		//m_pHyGraphicsDevivce->Submit(0, &m_DispTexDesc, 1);
-		char filename[245];
-		sprintf(filename, "TestFile%d.dds", m_uFramesCount);
-		HRESULT hr = DirectX::SaveDDSTextureToFile(m_pD3D11DeviceContext, m_pStagingTexture, (wchar_t*)filename);
-		Sleep(100);
+		m_pHyGraphicsDevivce->Submit(0, &m_DispTexDesc, 1);
 		DriverLog("Submited");
 		m_cLastVsyncTime = clock();
-		m_uFramesCount++;
+		//m_uFramesCount++;
 		if (m_pKeyedMutex){
 			m_pKeyedMutex->ReleaseSync(0);
 			m_pKeyedMutex->Release();
@@ -64,6 +60,7 @@ void FrameCoder::VsyncLoop()
 bool FrameCoder::copyToStaging(ID3D11Texture2D* pTexture)
 {
 	m_pProviderSem->acquire();
+	/*
 	if (m_pStagingTexture == nullptr){
 		D3D11_TEXTURE2D_DESC srcDesc;
 		pTexture->GetDesc(&srcDesc);
@@ -72,8 +69,8 @@ bool FrameCoder::copyToStaging(ID3D11Texture2D* pTexture)
 			return false;
 		}
 	}
-	m_pD3D11DeviceContext->CopyResource(m_pStagingTexture, pTexture);
-	//m_pStagingTexture = pTexture;
+	m_pD3D11DeviceContext->CopyResource(m_pStagingTexture, pTexture);*/
+	m_pStagingTexture = pTexture;
 	DriverLog("Copyed");
 	return true;
 }
