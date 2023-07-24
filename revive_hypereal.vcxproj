@@ -99,7 +99,7 @@
     <TargetName>driver_revive_hypereal</TargetName>
     <OutDir>D:\steam\steamapps\common\SteamVR\drivers\revive_hypereal\bin\win64</OutDir>
     <LibraryPath>$(SolutionDir)libraries\$(Platform);$(SolutionDir)libraries;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(SolutionDir)include;$(SolutionDir)include\Python;$(SolutionDir)include\OpenVR;$(IncludePath)</IncludePath>
+    <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(SolutionDir)include;$(SolutionDir)include\OpenVR;$(IncludePath)</IncludePath>
     <IntDir>$(ProjectName)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -163,7 +163,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -180,7 +180,11 @@
     <ClCompile Include="source\FrameCoder.cpp" />
     <ClCompile Include="source\HYController.cpp" />
     <ClCompile Include="source\HYHMD.cpp" />
+    <ClCompile Include="source\ipctools.cpp" />
+    <ClCompile Include="source\ScreenGrab\sgb.cpp" />
     <ClCompile Include="source\ServerDriver.cpp" />
+    <ClCompile Include="source\systemtime.cpp" />
+    <ClCompile Include="source\threadtools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\driverlog.h" />
@@ -188,8 +192,13 @@
     <ClInclude Include="include\HYController.h" />
     <ClInclude Include="include\HYHMD.h" />
     <ClInclude Include="include\Hypereal_VR.h" />
+    <ClInclude Include="include\ipctools.h" />
     <ClInclude Include="include\openvr_driver.h" />
     <ClInclude Include="include\ServerDriver.h" />
+    <ClInclude Include="include\sharedstate.h" />
+    <ClInclude Include="include\systemtime.h" />
+    <ClInclude Include="include\threadtools.h" />
+    <ClInclude Include="source\ScreenGrab\sgb.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="libraries\x64\HvrAPI.lib" />

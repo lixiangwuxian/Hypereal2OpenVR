@@ -11,7 +11,7 @@ HyController::HyController(std::string id, ETrackedControllerRole type,HyDevice 
 	else if(m_sSerialNumber[0]=='R')
 		m_sModelNumber = "{revive_hypereal}/rendermodels/hypereal_controller_right";
 	m_Type = type;
-	ControllerDevice = Device;
+	m_pHyDevice = Device;
 }
 
 HyController::~HyController()
@@ -20,9 +20,9 @@ HyController::~HyController()
 
 EVRInitError HyController::Activate(uint32_t unObjectId)
 {
-	VrObjectId = unObjectId;
-	initPos();
-	m_ulPropertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(VrObjectId);
+	m_indexVrObjectId = unObjectId;
+	InitializePosition();
+	m_ulPropertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_indexVrObjectId);
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_SerialNumber_String, m_sSerialNumber.c_str());
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_ModelNumber_String, "ViveMV");
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_RenderModelName_String, m_sModelNumber.c_str());
@@ -114,7 +114,7 @@ void HyController::InitEventHandler()
 
 void HyController::Deactivate()
 {
-	VrObjectId = k_unTrackedDeviceIndexInvalid;
+	m_indexVrObjectId = k_unTrackedDeviceIndexInvalid;
 }
 
 void HyController::EnterStandby()
@@ -137,7 +137,7 @@ PropertyContainerHandle_t HyController::GetPropertyContainer()
 	return m_ulPropertyContainer;
 }
 
-void HyController::initPos()
+void HyController::InitializePosition()
 {
 	m_Pose.result = vr::TrackingResult_Running_OK;
 	m_Pose.poseIsValid = true;
@@ -240,7 +240,7 @@ DriverPose_t HyController::GetPose(HyTrackingState ctrData)
 	m_Pose.vecVelocity[0] = ctrData.m_linearVelocity.x;
 	m_Pose.vecVelocity[1] = ctrData.m_linearVelocity.y;
 	m_Pose.vecVelocity[2] = ctrData.m_linearVelocity.z;
-	///m_Pose.vecAngularVelocity[0] = ctrData.m_angularVelocity.x;
+	m_Pose.vecAngularVelocity[0] = ctrData.m_angularVelocity.x;
 	//m_Pose.vecAngularVelocity[1] = ctrData.m_angularVelocity.y;
 	//m_Pose.vecAngularVelocity[2] = ctrData.m_angularVelocity.z;//Avoid shaking...these data from sdk is too sharp
 	m_Pose.vecAngularAcceleration[0] = ctrData.m_angularAcceleration.x;
@@ -259,7 +259,7 @@ std::string HyController::GetSerialNumber()
 
 void HyController::UpdatePose(HyTrackingState ctrData)
 {
-	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(VrObjectId, GetPose(ctrData), sizeof(DriverPose_t));
+	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_indexVrObjectId, GetPose(ctrData), sizeof(DriverPose_t));
 }
 
 void HyController::UpdateBattery(int value)

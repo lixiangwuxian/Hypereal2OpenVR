@@ -19,6 +19,18 @@
     <ClCompile Include="source\ServerDriver.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\ScreenGrab\sgb.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ipctools.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\systemtime.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\threadtools.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\driverlog.h">
@@ -40,6 +52,21 @@
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="include\ServerDriver.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ScreenGrab\sgb.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ipctools.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\systemtime.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\threadtools.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sharedstate.h">
       <Filter>header</Filter>
     </ClInclude>
   </ItemGroup>

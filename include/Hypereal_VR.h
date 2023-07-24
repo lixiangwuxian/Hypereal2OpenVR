@@ -1,5 +1,10 @@
-#define USE_HMD
-#define SWITCH_KEY
+#ifndef USE_HMD
+	#define USE_HMD
+#endif
+#ifndef SWITCH_KEY
+	#define SWITCH_KEY
+#endif
+
 //#define DEBUG_COORDINATE
 //#define SIMULATE_OCULUS_TOUCH
 //#define DISPLAY_DEBUG
