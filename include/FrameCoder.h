@@ -5,7 +5,8 @@
 #include<thread>
 #include<semaphore>
 #include<queue>
-#include"../source/ScreenGrab/sgb.h"
+//#include"../source/ScreenGrab/sgb.h"
+#include <systemtime.h>
 
 class FrameCoder {
 public:
@@ -22,8 +23,9 @@ private:
 	HyTextureDesc m_DispTexDesc;
 	HyGraphicsContext* m_pHyGraphicsDevivce = nullptr;
 	std::counting_semaphore<1>* m_pTextureSem = nullptr;
-	std::counting_semaphore<1>* m_pProviderSem = nullptr;
+	//std::counting_semaphore<1>* m_pProviderSem = nullptr;
 	std::queue<ID3D11Texture2D*> mQueue_pTexture;
-	clock_t m_cLastVsyncTime;
-	uint16_t m_uFramesCount;
+	//clock_t m_cLastVsyncTime;
+	uint64_t m_nVsyncCounter;
+	double m_flLastVsyncTimeInSeconds;
 };

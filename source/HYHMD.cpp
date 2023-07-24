@@ -115,8 +115,10 @@ std::string HyHMD::GetSerialNumber()
 	return m_sSerialNumber;
 }
 
-void HyHMD::UpdatePose(HyTrackingState HMDData)
+void HyHMD::UpdatePose()
 {
+	HyTrackingState HMDData;
+	m_pHMDDevice->GetTrackingState(HY_SUBDEV_HMD, 0, HMDData);
 	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_unObjectId, GetPose(HMDData), sizeof(DriverPose_t));
 }
 
@@ -229,13 +231,17 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 {
 	m_pTexture = GetSharedTexture((HANDLE)pPresentInfo->backbufferTextureHandle);
 	m_pKeyedMutex = NULL;
+	if (m_pTexture == nullptr) {
+		return;
+	}
+	/*
 	m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
-	if (m_pKeyedMutex->AcquireSync(0, 50) != S_OK)
+	if (m_pKeyedMutex->AcquireSync(0, 10) != S_OK)
 	{
 		m_pKeyedMutex->Release();
 		return;
 	}//go randering
-	
+	*/
 	if (m_pFlushTexture == NULL)
 	{
 		D3D11_TEXTURE2D_DESC srcDesc;
@@ -257,16 +263,14 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 
 		if (FAILED(m_pD3D11Device->CreateTexture2D(&flushTextureDesc, NULL, &m_pFlushTexture)))
 		{
+			DriverLog("Create m_pFlushTexture failed.");
 			return;
 		}
 	}
 	D3D11_BOX box = { 0, 0, 0, 1, 1, 1 };
 	m_pD3D11DeviceContext->CopySubresourceRegion(m_pFlushTexture, 0, 0, 0, 0, m_pTexture, 0, &box);
-	m_pD3D11DeviceContext->Flush();
 	m_pFrameCoder->copyToStaging(m_pTexture);
 	m_pD3D11DeviceContext->Flush();
-	m_nFrameCounter +=1;
-	//pre = clock();
 	if (m_pKeyedMutex)
 	{
 		m_pKeyedMutex->ReleaseSync(0);
@@ -276,28 +280,66 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 
 void HyHMD::WaitForPresent()
 {
-	DriverLog("WaitForPresent start!");
+	//DriverLog("WaitForPresent start!");
 	if (m_pFlushTexture)
 	{
+		//stuck here
 		D3D11_MAPPED_SUBRESOURCE mapped = { 0 };
-		if (SUCCEEDED(m_pD3D11DeviceContext->Map(m_pFlushTexture, 0, D3D11_MAP_READ, 0, &mapped)))
+		if (SUCCEEDED(m_pD3D11DeviceContext->Map(m_pFlushTexture, 0, D3D11_MAP_READ,0, &mapped)))
 		{
 			m_pD3D11DeviceContext->Unmap(m_pFlushTexture, 0);
 		}
 	}
-	DriverLog("Frame rander done!");
-	HyTrackingState m_trackInform;
-	m_pHMDDevice->GetTrackingState(HY_SUBDEV_HMD, 0, m_trackInform);
-	UpdatePose(m_trackInform);
+	//DriverLog("Frame rander done!");
+	UpdatePose();
 	m_pFrameCoder->NewFrameGo();
 	//m_pStagingTexture = nullptr;
-	DriverLog("WaitForPresent end!");
+	//DriverLog("WaitForPresent end!");
+	/*
+	float flLastVsyncTimeInSeconds;
+	uint64_t nVsyncCounter;
+	m_pFrameCoder->GetInfoForNextVsync(&flLastVsyncTimeInSeconds, &nVsyncCounter);
+
+	// Account for encoder/transmit latency.
+	// This is where the conversion from real to virtual vsync happens.
+	//flLastVsyncTimeInSeconds -= m_flAdditionalLatencyInSeconds;
+
+	float flFrameIntervalInSeconds = 0.01111;
+
+	// Realign our last time interval given updated timing reference.
+	DriverLog("m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds:%f", m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds);
+	int32_t nTimeRefToLastVsyncFrames =(int32_t)roundf(float(m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds) / flFrameIntervalInSeconds);
+	DriverLog("nTimeRefToLastVsyncFrames:%d", nTimeRefToLastVsyncFrames);
+	m_flLastVsyncTimeInSeconds = flLastVsyncTimeInSeconds + flFrameIntervalInSeconds * nTimeRefToLastVsyncFrames;
+	DriverLog("m_flLastVsyncTimeInSeconds:%lf", m_flLastVsyncTimeInSeconds);
+
+	double flNow = SystemTime::GetInSeconds();
+	DriverLog("flNow:%lf", flNow);
+	DriverLog("flNow - m_flLastVsyncTimeInSeconds:%f", flNow - m_flLastVsyncTimeInSeconds);
+	// Find the next frame interval (keeping in mind we may get here during running start).
+	int32_t nLastVsyncToNextVsyncFrames =(int32_t)(float(flNow - m_flLastVsyncTimeInSeconds) / flFrameIntervalInSeconds);
+	nLastVsyncToNextVsyncFrames = max(nLastVsyncToNextVsyncFrames, 0)+1;
+	DriverLog("nLastVsyncToNextVsyncFrames:%d", nLastVsyncToNextVsyncFrames);
+
+	// And store it for use in GetTimeSinceLastVsync (below) and updating our next frame.
+	m_flLastVsyncTimeInSeconds += flFrameIntervalInSeconds * nLastVsyncToNextVsyncFrames;
+	m_nVsyncCounter = nVsyncCounter + nTimeRefToLastVsyncFrames + nLastVsyncToNextVsyncFrames;
+	DriverLog("pulFrameCounter:%llu", m_nVsyncCounter);
+	*/
 }
 
 bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
-	m_pFrameCoder->GetInfoForNextVsync(pfSecondsSinceLastVsync, pulFrameCounter);
+	//m_pFrameCoder->GetInfoForNextVsync(pfSecondsSinceLastVsync, pulFrameCounter);
+	/*
+	*pfSecondsSinceLastVsync = (float)(SystemTime::GetInSeconds() - m_flLastVsyncTimeInSeconds);
+	*pulFrameCounter = m_nVsyncCounter;
+	DriverLog("pfSecondsSinceLastVsync:%f pulFrameCounter:%llu", pfSecondsSinceLastVsync, m_nVsyncCounter);
 	return true;
+	*/
+	*pfSecondsSinceLastVsync = 0;
+	*pulFrameCounter = 0;
+	return false;
 }
 
 //private

@@ -6,6 +6,7 @@
 #include<d3d11.h>
 #include<time.h>
 #include"FrameCoder.h"
+#include <systemtime.h>
 
 //typedef void(UpdateHyPoseCallBack)(const HyTrackingState& newData, bool leftOrRight);
 
@@ -32,7 +33,7 @@ public:
 	virtual DriverPose_t GetPose();
 	PropertyContainerHandle_t GetPropertyContainer();
 	std::string GetSerialNumber();
-	void UpdatePose(HyTrackingState ctrData);
+	void UpdatePose();
 	
 	//IVRdisplaycomponent
 	
@@ -84,6 +85,8 @@ private:
 	volatile uint32_t m_nFrameCounter = 0;
 	HyGraphicsContext* m_pDispHandle;
 	HyGraphicsContextDesc m_DispDesc;
+	double m_flLastVsyncTimeInSeconds=0;
+	uint64_t m_nVsyncCounter;
 	//HyTextureDesc m_DispTexDesc;
 	FrameCoder* m_pFrameCoder;
 	ID3D11Device* m_pD3D11Device;
