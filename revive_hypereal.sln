@@ -4,11 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hypereal_OVRDriver", "revive_hypereal.vcxproj", "{D20779F6-B7C6-4E77-83FD-E16E80EC3CD9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD} = {1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DriverLog", "DriverLog\DriverLog.vcxproj", "{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,22 +33,6 @@ Global
 		{D20779F6-B7C6-4E77-83FD-E16E80EC3CD9}.RelWithDebInfo|x64.Build.0 = Release|x64
 		{D20779F6-B7C6-4E77-83FD-E16E80EC3CD9}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
 		{D20779F6-B7C6-4E77-83FD-E16E80EC3CD9}.RelWithDebInfo|x86.Build.0 = Release|Win32
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.Debug|x64.ActiveCfg = Debug|x64
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.Debug|x64.Build.0 = Debug|x64
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.Debug|x86.ActiveCfg = Debug|Win32
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.Debug|x86.Build.0 = Debug|Win32
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.MinSizeRel|x64.ActiveCfg = Release|x64
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.MinSizeRel|x64.Build.0 = Release|x64
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.MinSizeRel|x86.ActiveCfg = Release|Win32
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.MinSizeRel|x86.Build.0 = Release|Win32
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.Release|x64.ActiveCfg = Release|x64
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.Release|x64.Build.0 = Release|x64
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.Release|x86.ActiveCfg = Release|Win32
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.Release|x86.Build.0 = Release|Win32
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.RelWithDebInfo|x64.ActiveCfg = Release|x64
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.RelWithDebInfo|x64.Build.0 = Release|x64
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
-		{1EE7146F-EA76-4FC2-A0B0-D4A9C1A42AFD}.RelWithDebInfo|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

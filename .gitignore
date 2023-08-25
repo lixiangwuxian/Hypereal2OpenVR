@@ -365,5 +365,3 @@ DriverLog/Debugx64
 DriverLog/ReleaseWin32
 DriverLog/Releasex64
 Hypereal_OVRDriverx64
-/source/ScreenGrab/sgb.cpp
-/source/ScreenGrab/sgb.h

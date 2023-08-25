@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="source\DriverFactory.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\driverlog.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\FrameCoder.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\HYController.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\HYHMD.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ServerDriver.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ScreenGrab\sgb.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ipctools.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\systemtime.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\threadtools.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\driverlog.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FrameCoder.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HYController.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HYHMD.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hypereal_VR.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\openvr_driver.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ServerDriver.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ScreenGrab\sgb.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ipctools.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\systemtime.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\threadtools.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sharedstate.h">
+      <Filter>header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libraries\x64\HvrAPI.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="header">
+      <UniqueIdentifier>{090fdd20-6663-4e5e-a268-b8b17862dd97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{d48cfec4-acfd-4d8a-b3f6-f4e5f95249d9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

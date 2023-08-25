@@ -3,36 +3,37 @@
 #pragma comment(lib,"d3d11.lib")
 using namespace vr;
 
-HyHMD::HyHMD(std::string id, HyDevice* Device, UpdateHyPoseCallBack* fptr_UpdateHyPose) {
-	m_fptr_UpdateHyPose = fptr_UpdateHyPose;
+
+
+HyHMD::HyHMD(std::string id, HyDevice* Device) {
+	//m_fptr_UpdateHyPose = fptr_UpdateHyPose;
 	m_ulPropertyContainer = vr::k_ulInvalidPropertyContainer;
 	m_sSerialNumber = id;
 	m_sModelNumber = "";
-	HMDDevice = Device;
+	m_pHMDDevice = Device;
 	initDisplayConfig();
 	D3D_FEATURE_LEVEL eFeatureLevel;
 	D3D_FEATURE_LEVEL pFeatureLevels[2]{};
 	pFeatureLevels[0] = D3D_FEATURE_LEVEL_11_1;
 	pFeatureLevels[1] = D3D_FEATURE_LEVEL_11_0;
-	D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, pFeatureLevels, 2, D3D11_SDK_VERSION, &pD3D11Device, &eFeatureLevel, &pD3D11DeviceContext);
+	D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, pFeatureLevels, 2, D3D11_SDK_VERSION, &m_pD3D11Device, &eFeatureLevel, &m_pD3D11DeviceContext);
 	memset(&m_DispDesc, 0, sizeof(HyGraphicsContextDesc));
-	m_DispDesc.m_graphicsDevice = pD3D11Device;
+	m_DispDesc.m_graphicsDevice = m_pD3D11Device;
 	m_DispDesc.m_graphicsAPI = HY_GRAPHICS_D3D11;
 	m_DispDesc.m_pixelFormat = HY_TEXTURE_R8G8B8A8_UNORM_SRGB;
 	m_DispDesc.m_pixelDensity = 1.0f;
 	m_DispDesc.m_mirrorWidth = 2160;
 	m_DispDesc.m_mirrorHeight = 1200;
 	m_DispDesc.m_flags = 0;
-	HyResult hr=Device->CreateGraphicsContext(m_DispDesc, &m_DispHandle);
-	m_DispTexDesc.m_uvOffset = HyVec2{ 0.0f, 0.0f };
-	m_DispTexDesc.m_uvSize = HyVec2{ 1.0f, 1.0f };
+	HyResult hr= m_pHMDDevice->CreateGraphicsContext(m_DispDesc, &m_pDispHandle);
+	m_pFrameCoder = new FrameCoder(m_pDispHandle, m_pD3D11Device,m_pD3D11DeviceContext);
+	//m_DispTexDesc.m_uvOffset = HyVec2{ 0.0f, 0.0f };
+	//m_DispTexDesc.m_uvSize = HyVec2{ 1.0f, 1.0f };
 }
-
 
 HyHMD::~HyHMD(){
-	m_DispHandle->Release();
+	m_pDispHandle->Release();
 }
-
 
 void HyHMD::initDisplayConfig() {
 	m_nWindowX = 0;
@@ -48,7 +49,7 @@ void HyHMD::initDisplayConfig() {
 EVRInitError HyHMD::Activate(uint32_t unObjectId)
 {
 	m_unObjectId = unObjectId;
-	initPos();
+	InitializePosition();
 	m_ulPropertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_unObjectId);
 	vr::VRProperties()->SetUint64Property(m_ulPropertyContainer, Prop_CurrentUniverseId_Uint64, 2);
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_SerialNumber_String, m_sSerialNumber.c_str());
@@ -114,8 +115,10 @@ std::string HyHMD::GetSerialNumber()
 	return m_sSerialNumber;
 }
 
-void HyHMD::UpdatePose(HyTrackingState HMDData)
+void HyHMD::UpdatePose()
 {
+	HyTrackingState HMDData;
+	m_pHMDDevice->GetTrackingState(HY_SUBDEV_HMD, 0, HMDData);
 	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_unObjectId, GetPose(HMDData), sizeof(DriverPose_t));
 }
 
@@ -143,8 +146,8 @@ void HyHMD::GetRecommendedRenderTargetSize(uint32_t* pnWidth, uint32_t* pnHeight
 {
 	uint32_t leftWidth = 0, leftHeight = 0;
 	uint32_t rightWidth = 0, rightHeight = 0;
-	m_DispHandle->GetRenderTargetSize(HY_EYE_LEFT, leftWidth, leftHeight);
-	m_DispHandle->GetRenderTargetSize(HY_EYE_RIGHT, rightWidth, rightHeight);
+	m_pDispHandle->GetRenderTargetSize(HY_EYE_LEFT, leftWidth, leftHeight);
+	m_pDispHandle->GetRenderTargetSize(HY_EYE_RIGHT, rightWidth, rightHeight);
 	uint32_t finalWidth = leftWidth + rightWidth;
 	uint32_t finalHeight = leftHeight > rightHeight ? leftHeight : rightHeight;
 	*pnWidth = finalWidth/2;//for single eye
@@ -171,21 +174,21 @@ void HyHMD::GetProjectionRaw(EVREye eEye, float* pfLeft, float* pfRight, float* 
 	//set fov
 	HyFov fov;
 	if (eEye == Eye_Left) {
-		HMDDevice->GetFloatArray(HY_PROPERTY_HMD_LEFT_EYE_FOV_FLOAT4_ARRAY, fov.val, 4);
+		m_pHMDDevice->GetFloatArray(HY_PROPERTY_HMD_LEFT_EYE_FOV_FLOAT4_ARRAY, fov.val, 4);
 		*pfLeft = -fov.m_leftTan;
 		*pfRight = fov.m_rightTan;
 		*pfTop = fov.m_upTan;
 		*pfBottom = -fov.m_downTan;
 	}
 	else if (eEye == Eye_Right) {
-		HMDDevice->GetFloatArray(HY_PROPERTY_HMD_RIGHT_EYE_FOV_FLOAT4_ARRAY, fov.val, 4);
+		m_pHMDDevice->GetFloatArray(HY_PROPERTY_HMD_RIGHT_EYE_FOV_FLOAT4_ARRAY, fov.val, 4);
 		*pfLeft = -fov.m_leftTan;
 		*pfRight = fov.m_rightTan;
 		*pfTop = fov.m_upTan;
 		*pfBottom = -fov.m_downTan;
 	}
 	std::swap(*pfTop, *pfBottom);
-	DriverLog("GetProjectionRaw lrtb:%f%f%f%f", *pfLeft, *pfRight, *pfTop, *pfBottom);//same as official
+	//DriverLog("GetProjectionRaw lrtb:%f%f%f%f", *pfLeft, *pfRight, *pfTop, *pfBottom);//same as official
 }
 
 DistortionCoordinates_t HyHMD::ComputeDistortion(EVREye eEye, float fU, float fV)
@@ -199,7 +202,6 @@ DistortionCoordinates_t HyHMD::ComputeDistortion(EVREye eEye, float fU, float fV
 	coordinates.rfRed[1] =fV;
 	return coordinates;
 }
-
 
 ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
 {
@@ -215,7 +217,7 @@ ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
 	}
 
 	ID3D11Texture2D* pTexture;
-	if (SUCCEEDED(pD3D11Device->OpenSharedResource(
+	if (SUCCEEDED(m_pD3D11Device->OpenSharedResource(
 		hSharedTexture, __uuidof(ID3D11Texture2D), (void**)&pTexture)))
 	{
 		SharedTextureEntry_t entry{ hSharedTexture, pTexture };
@@ -225,59 +227,124 @@ ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
 	return NULL;
 }//from virtual display simple
 
-
-
 void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSize)
 {
-	m_nFrameCounter +=1;
 	m_pTexture = GetSharedTexture((HANDLE)pPresentInfo->backbufferTextureHandle);
 	m_pKeyedMutex = NULL;
+	if (m_pTexture == nullptr) {
+		return;
+	}
+	/*
 	m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
-	if (m_pKeyedMutex->AcquireSync(0, 50) != S_OK)
+	if (m_pKeyedMutex->AcquireSync(0, 10) != S_OK)
 	{
 		m_pKeyedMutex->Release();
 		return;
 	}//go randering
-}
+	*/
+	if (m_pFlushTexture == NULL)
+	{
+		D3D11_TEXTURE2D_DESC srcDesc;
+		m_pTexture->GetDesc(&srcDesc);
 
-void HyHMD::WaitForPresent()
-{
-	m_tLastSubmitTime = clock();
-	HyTrackingState trackInform;
-	HMDDevice->GetTrackingState(HY_SUBDEV_HMD, m_nFrameCounter, trackInform);
-	UpdatePose(trackInform);
-	HMDDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_LEFT, m_nFrameCounter, trackInform);
-	(*m_fptr_UpdateHyPose)(trackInform, true);
-	HMDDevice->GetTrackingState(HY_SUBDEV_CONTROLLER_RIGHT, m_nFrameCounter, trackInform);
-	(*m_fptr_UpdateHyPose)(trackInform, false);
-	m_DispTexDesc.m_texture = m_pTexture;
-	m_DispHandle->Submit(m_nFrameCounter, &m_DispTexDesc, 1);
-	m_tLastVsyncTime = clock();
+		// Create a second small texture for copying and reading a single pixel from
+		// in order to block on the cpu until rendering is finished.
+		D3D11_TEXTURE2D_DESC flushTextureDesc;
+		ZeroMemory(&flushTextureDesc, sizeof(flushTextureDesc));
+		flushTextureDesc.Width = 32;
+		flushTextureDesc.Height = 32;
+		flushTextureDesc.MipLevels = 1;
+		flushTextureDesc.ArraySize = 1;
+		flushTextureDesc.Format = srcDesc.Format;
+		flushTextureDesc.SampleDesc.Count = 1;
+		flushTextureDesc.Usage = D3D11_USAGE_STAGING;
+		flushTextureDesc.BindFlags = 0;
+		flushTextureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+		if (FAILED(m_pD3D11Device->CreateTexture2D(&flushTextureDesc, NULL, &m_pFlushTexture)))
+		{
+			DriverLog("Create m_pFlushTexture failed.");
+			return;
+		}
+	}
+	D3D11_BOX box = { 0, 0, 0, 1, 1, 1 };
+	m_pD3D11DeviceContext->CopySubresourceRegion(m_pFlushTexture, 0, 0, 0, 0, m_pTexture, 0, &box);
+	m_pFrameCoder->copyToStaging(m_pTexture);
+	m_pD3D11DeviceContext->Flush();
 	if (m_pKeyedMutex)
 	{
 		m_pKeyedMutex->ReleaseSync(0);
 		m_pKeyedMutex->Release();
 	}
-	
+}
+
+void HyHMD::WaitForPresent()
+{
+	//DriverLog("WaitForPresent start!");
+	if (m_pFlushTexture)
+	{
+		//stuck here
+		D3D11_MAPPED_SUBRESOURCE mapped = { 0 };
+		if (SUCCEEDED(m_pD3D11DeviceContext->Map(m_pFlushTexture, 0, D3D11_MAP_READ,0, &mapped)))
+		{
+			m_pD3D11DeviceContext->Unmap(m_pFlushTexture, 0);
+		}
+	}
+	//DriverLog("Frame rander done!");
+	UpdatePose();
+	m_pFrameCoder->NewFrameGo();
+	//m_pStagingTexture = nullptr;
+	//DriverLog("WaitForPresent end!");
+	/*
+	float flLastVsyncTimeInSeconds;
+	uint64_t nVsyncCounter;
+	m_pFrameCoder->GetInfoForNextVsync(&flLastVsyncTimeInSeconds, &nVsyncCounter);
+
+	// Account for encoder/transmit latency.
+	// This is where the conversion from real to virtual vsync happens.
+	//flLastVsyncTimeInSeconds -= m_flAdditionalLatencyInSeconds;
+
+	float flFrameIntervalInSeconds = 0.01111;
+
+	// Realign our last time interval given updated timing reference.
+	DriverLog("m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds:%f", m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds);
+	int32_t nTimeRefToLastVsyncFrames =(int32_t)roundf(float(m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds) / flFrameIntervalInSeconds);
+	DriverLog("nTimeRefToLastVsyncFrames:%d", nTimeRefToLastVsyncFrames);
+	m_flLastVsyncTimeInSeconds = flLastVsyncTimeInSeconds + flFrameIntervalInSeconds * nTimeRefToLastVsyncFrames;
+	DriverLog("m_flLastVsyncTimeInSeconds:%lf", m_flLastVsyncTimeInSeconds);
+
+	double flNow = SystemTime::GetInSeconds();
+	DriverLog("flNow:%lf", flNow);
+	DriverLog("flNow - m_flLastVsyncTimeInSeconds:%f", flNow - m_flLastVsyncTimeInSeconds);
+	// Find the next frame interval (keeping in mind we may get here during running start).
+	int32_t nLastVsyncToNextVsyncFrames =(int32_t)(float(flNow - m_flLastVsyncTimeInSeconds) / flFrameIntervalInSeconds);
+	nLastVsyncToNextVsyncFrames = max(nLastVsyncToNextVsyncFrames, 0)+1;
+	DriverLog("nLastVsyncToNextVsyncFrames:%d", nLastVsyncToNextVsyncFrames);
+
+	// And store it for use in GetTimeSinceLastVsync (below) and updating our next frame.
+	m_flLastVsyncTimeInSeconds += flFrameIntervalInSeconds * nLastVsyncToNextVsyncFrames;
+	m_nVsyncCounter = nVsyncCounter + nTimeRefToLastVsyncFrames + nLastVsyncToNextVsyncFrames;
+	DriverLog("pulFrameCounter:%llu", m_nVsyncCounter);
+	*/
 }
 
 bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
+	//m_pFrameCoder->GetInfoForNextVsync(pfSecondsSinceLastVsync, pulFrameCounter);
 	/*
-	*pfSecondsSinceLastVsync = (float)(clock() - m_tLastVsyncTime) / CLOCKS_PER_SEC;
-	*pulFrameCounter = m_nFrameCounter;
-	if (m_tLastVsyncTime < m_tLastSubmitTime) {
-		m_uDropFrames++;
-	}
-	*pulFrameCounter -= m_uDropFrames;
-	//DriverLog("Submmit Time:%d", m_tLastVsyncTime-m_tLastSubmitTime);
+	*pfSecondsSinceLastVsync = (float)(SystemTime::GetInSeconds() - m_flLastVsyncTimeInSeconds);
+	*pulFrameCounter = m_nVsyncCounter;
+	DriverLog("pfSecondsSinceLastVsync:%f pulFrameCounter:%llu", pfSecondsSinceLastVsync, m_nVsyncCounter);
+	return true;
 	*/
-	return false;//Just don't implement this
+	*pfSecondsSinceLastVsync = 0;
+	*pulFrameCounter = 0;
+	return false;
 }
 
 //private
 
-void HyHMD::initPos()
+void HyHMD::InitializePosition()
 {
 	m_Pose.result = vr::TrackingResult_Running_OK;
 	m_Pose.poseIsValid = true;
@@ -314,7 +381,7 @@ void HyHMD::initPos()
 DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 {
 	HyPose eyePoses[HY_EYE_MAX];
-	m_DispHandle->GetEyePoses(HMDData.m_pose, nullptr, eyePoses);
+	m_pDispHandle->GetEyePoses(HMDData.m_pose, nullptr, eyePoses);
 #ifdef DEBUG_COORDINATE
 
 	if (GetAsyncKeyState(VK_UP) != 0) {
@@ -349,9 +416,6 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 	m_Pose.vecPosition[0] = HMDData.m_pose.m_position.x;
 	m_Pose.vecPosition[1] = HMDData.m_pose.m_position.y;
 	m_Pose.vecPosition[2] = HMDData.m_pose.m_position.z;
-	/*m_Pose.vecPosition[0] = (eyePoses[0].m_position.x + eyePoses[1].m_position.x) / 2;
-	m_Pose.vecPosition[1] = (eyePoses[0].m_position.y + eyePoses[1].m_position.y) / 2;
-	m_Pose.vecPosition[2] = (eyePoses[0].m_position.z + eyePoses[1].m_position.z) / 2;*/
 	m_Pose.qRotation.x = HMDData.m_pose.m_rotation.x;
 	m_Pose.qRotation.y = HMDData.m_pose.m_rotation.y;
 	m_Pose.qRotation.z = HMDData.m_pose.m_rotation.z;
@@ -378,6 +442,8 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 		m_Pose.result = vr::TrackingResult_Fallback_RotationOnly;
 		m_Pose.poseIsValid = false;
 		return m_Pose;
-	}*///¶ª×·×Ù²»»ÒÆÁ
+	}*/
+	//¶ª×·×Ù²»»ÒÆÁ
 	return m_Pose;
 }
+
