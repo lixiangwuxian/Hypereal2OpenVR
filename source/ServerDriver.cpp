@@ -4,9 +4,6 @@
 void ErrorAlarm(HyResult result);
 void Boardcast();
 
-
-
-
 bool killProcessByName(const wchar_t* filename){
 
 	HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
@@ -43,9 +40,6 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext* DriverContext) {
 
 	std::thread::thread(&ErrorAlarm, ifCreate).detach();
 
-	while (killProcessByName(L"bkdrop.exe")){
-		Sleep(5000);
-	}
 	if (ifCreate >= 100) {//Got an error.. Don't initialize any device or steamvr would crash.
 		return vr::VRInitError_None;
 	}
@@ -132,16 +126,15 @@ void ErrorAlarm(HyResult result) {
 			Sleep(50);
 		}
 	}
+	while (killProcessByName(L"bkdrop.exe")) {
+		Sleep(5000);
+	}
 }
 
 void Boardcast() {
 	const TCHAR szOperation[] = _T("open");
 	wchar_t* szAddress = (wchar_t*)L"https://github.com/lixiangwuxian/HyperealDriverTest";
-	int result=MessageBoxW(NULL, L"2022/10/27 release2.0。\n\
-似乎所有功能都正常\n\
-更新内容请于Github页面查看\n\
-Created By lixiangwuxian@github\n"\
-, L"提示", MB_OK);
+	int result=MessageBoxW(NULL, L"点击确定打开驱动主页\nCreated By lixiangwuxian@github\n", L"提示", MB_OK|MB_OKCANCEL);
 	if (result != IDOK) {
 		ShellExecute(NULL, szOperation, szAddress, NULL, NULL, SW_SHOWNORMAL);
 	}

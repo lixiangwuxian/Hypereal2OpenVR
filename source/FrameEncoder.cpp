@@ -1,6 +1,6 @@
-#include "FrameCoder.h"
+#include "FrameEncoder.h"
 
-FrameCoder::FrameCoder(HyGraphicsContext* pGraphicsDevivce, ID3D11Device* pD3D11Device,ID3D11DeviceContext* pD3D11DeviceContext)
+FrameEncoder::FrameEncoder(HyGraphicsContext* pGraphicsDevivce, ID3D11Device* pD3D11Device,ID3D11DeviceContext* pD3D11DeviceContext)
 {
 	m_nVsyncCounter = 0;
 	m_flLastVsyncTimeInSeconds = SystemTime::GetInSeconds();
@@ -11,10 +11,10 @@ FrameCoder::FrameCoder(HyGraphicsContext* pGraphicsDevivce, ID3D11Device* pD3D11
 	//m_pProviderSem = new std::counting_semaphore<1>(1);
 	m_DispTexDesc.m_uvOffset = HyVec2{ 0.0f, 0.0f };
 	m_DispTexDesc.m_uvSize = HyVec2{ 1.0f, 1.0f };
-	//std::thread::thread(&FrameCoder::VsyncLoop,this).detach();
+	//std::thread::thread(&FrameEncoder::VsyncLoop,this).detach();
 }
 
-void FrameCoder::NewFrameGo()
+void FrameEncoder::NewFrameGo()
 {
 	//DriverLog("Sending Texture to Screen");
 	m_DispTexDesc.m_texture = m_pStagingTexture;
@@ -35,13 +35,13 @@ void FrameCoder::NewFrameGo()
 	//m_pTextureSem->release(); 
 }
 
-void FrameCoder::GetInfoForNextVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
+void FrameEncoder::GetInfoForNextVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
 	*pfSecondsSinceLastVsync = m_flLastVsyncTimeInSeconds;
 	*pulFrameCounter = m_nVsyncCounter;
 }
 
-void FrameCoder::VsyncLoop()
+void FrameEncoder::VsyncLoop()
 {
 	DriverLog("Created Vsync Loop");
 	while (1) {
@@ -66,7 +66,7 @@ void FrameCoder::VsyncLoop()
 	}
 }
 
-bool FrameCoder::copyToStaging(ID3D11Texture2D* pTexture)
+bool FrameEncoder::copyToStaging(ID3D11Texture2D* pTexture)
 {
 	//m_pProviderSem->acquire();
 	if (m_pStagingTexture == NULL){
