@@ -69,6 +69,7 @@ void FrameEncoder::VsyncLoop()
 bool FrameEncoder::copyToStaging(ID3D11Texture2D* pTexture)
 {
 	//m_pProviderSem->acquire();
+	/**
 	if (m_pStagingTexture == NULL){
 		D3D11_TEXTURE2D_DESC srcDesc;
 		pTexture->GetDesc(&srcDesc);
@@ -78,7 +79,8 @@ bool FrameEncoder::copyToStaging(ID3D11Texture2D* pTexture)
 		}
 	}
 	m_pD3D11DeviceContext->CopyResource(m_pStagingTexture, pTexture);
-	//m_pStagingTexture = pTexture;
+	*/
+	m_pStagingTexture = pTexture;
 	//DriverLog("Copyed");
 	return true;
 }
