@@ -247,8 +247,6 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 		D3D11_TEXTURE2D_DESC srcDesc;
 		m_pTexture->GetDesc(&srcDesc);
 
-		// Create a second small texture for copying and reading a single pixel from
-		// in order to block on the cpu until rendering is finished.
 		D3D11_TEXTURE2D_DESC flushTextureDesc;
 		ZeroMemory(&flushTextureDesc, sizeof(flushTextureDesc));
 		flushTextureDesc.Width = 32;

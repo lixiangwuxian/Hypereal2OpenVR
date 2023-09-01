@@ -32,7 +32,7 @@ void FrameEncoder::NewFrameGo()
 		m_pKeyedMutex->Release();
 		//DriverLog("Unlocked");
 	}
-	//m_pTextureSem->release(); 
+	//m_pTextureSem->release();
 }
 
 void FrameEncoder::GetInfoForNextVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
