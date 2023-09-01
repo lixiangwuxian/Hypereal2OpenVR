@@ -7,9 +7,6 @@
     <ClCompile Include="source\driverlog.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="source\FrameCoder.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="source\HYController.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -17,9 +14,6 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\ServerDriver.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ScreenGrab\sgb.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\ipctools.cpp">
@@ -31,12 +25,12 @@
     <ClCompile Include="source\threadtools.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\FrameEncoder.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\driverlog.h">
-      <Filter>header</Filter>
-    </ClInclude>
-    <ClInclude Include="include\FrameCoder.h">
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="include\HYController.h">
@@ -54,9 +48,6 @@
     <ClInclude Include="include\ServerDriver.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="source\ScreenGrab\sgb.h">
-      <Filter>header</Filter>
-    </ClInclude>
     <ClInclude Include="include\ipctools.h">
       <Filter>header</Filter>
     </ClInclude>
@@ -67,6 +58,9 @@
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="include\sharedstate.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FrameEncoder.h">
       <Filter>header</Filter>
     </ClInclude>
   </ItemGroup>
