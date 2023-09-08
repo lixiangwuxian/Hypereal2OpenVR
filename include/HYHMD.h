@@ -5,7 +5,7 @@
 #include"driverlog.h"
 #include<d3d11.h>
 #include<time.h>
-#include"FrameCoder.h"
+#include"FrameEncoder.h"
 #include <systemtime.h>
 
 //typedef void(UpdateHyPoseCallBack)(const HyTrackingState& newData, bool leftOrRight);
@@ -88,7 +88,7 @@ private:
 	double m_flLastVsyncTimeInSeconds=0;
 	uint64_t m_nVsyncCounter;
 	//HyTextureDesc m_DispTexDesc;
-	FrameCoder* m_pFrameCoder;
+	FrameEncoder* m_pFrameEncoder;
 	ID3D11Device* m_pD3D11Device;
 	ID3D11DeviceContext* m_pD3D11DeviceContext;
 	ID3D11Texture2D* m_pTexture;

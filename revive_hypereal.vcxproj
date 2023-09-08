@@ -178,18 +178,17 @@
   <ItemGroup>
     <ClCompile Include="source\DriverFactory.cpp" />
     <ClCompile Include="source\driverlog.cpp" />
-    <ClCompile Include="source\FrameCoder.cpp" />
+    <ClCompile Include="source\FrameEncoder.cpp" />
     <ClCompile Include="source\HYController.cpp" />
     <ClCompile Include="source\HYHMD.cpp" />
     <ClCompile Include="source\ipctools.cpp" />
-    <ClCompile Include="source\ScreenGrab\sgb.cpp" />
     <ClCompile Include="source\ServerDriver.cpp" />
     <ClCompile Include="source\systemtime.cpp" />
     <ClCompile Include="source\threadtools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\driverlog.h" />
-    <ClInclude Include="include\FrameCoder.h" />
+    <ClInclude Include="include\FrameEncoder.h" />
     <ClInclude Include="include\HYController.h" />
     <ClInclude Include="include\HYHMD.h" />
     <ClInclude Include="include\Hypereal_VR.h" />
@@ -199,7 +198,6 @@
     <ClInclude Include="include\sharedstate.h" />
     <ClInclude Include="include\systemtime.h" />
     <ClInclude Include="include\threadtools.h" />
-    <ClInclude Include="source\ScreenGrab\sgb.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="libraries\x64\HvrAPI.lib" />

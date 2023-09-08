@@ -8,9 +8,9 @@
 //#include"../source/ScreenGrab/sgb.h"
 #include <systemtime.h>
 
-class FrameCoder {
+class FrameEncoder {
 public:
-	FrameCoder(HyGraphicsContext* pGraphicsDevivce, ID3D11Device* pD3D11Device, ID3D11DeviceContext* pD3D11DeviceContext);
+	FrameEncoder(HyGraphicsContext* pGraphicsDevivce, ID3D11Device* pD3D11Device, ID3D11DeviceContext* pD3D11DeviceContext);
 	void NewFrameGo();
 	void GetInfoForNextVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter);
 	void VsyncLoop();

@@ -26,7 +26,7 @@ HyHMD::HyHMD(std::string id, HyDevice* Device) {
 	m_DispDesc.m_mirrorHeight = 1200;
 	m_DispDesc.m_flags = 0;
 	HyResult hr= m_pHMDDevice->CreateGraphicsContext(m_DispDesc, &m_pDispHandle);
-	m_pFrameCoder = new FrameCoder(m_pDispHandle, m_pD3D11Device,m_pD3D11DeviceContext);
+	m_pFrameEncoder = new FrameEncoder(m_pDispHandle, m_pD3D11Device,m_pD3D11DeviceContext);
 	//m_DispTexDesc.m_uvOffset = HyVec2{ 0.0f, 0.0f };
 	//m_DispTexDesc.m_uvSize = HyVec2{ 1.0f, 1.0f };
 }
@@ -247,8 +247,6 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 		D3D11_TEXTURE2D_DESC srcDesc;
 		m_pTexture->GetDesc(&srcDesc);
 
-		// Create a second small texture for copying and reading a single pixel from
-		// in order to block on the cpu until rendering is finished.
 		D3D11_TEXTURE2D_DESC flushTextureDesc;
 		ZeroMemory(&flushTextureDesc, sizeof(flushTextureDesc));
 		flushTextureDesc.Width = 32;
@@ -269,7 +267,7 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	}
 	D3D11_BOX box = { 0, 0, 0, 1, 1, 1 };
 	m_pD3D11DeviceContext->CopySubresourceRegion(m_pFlushTexture, 0, 0, 0, 0, m_pTexture, 0, &box);
-	m_pFrameCoder->copyToStaging(m_pTexture);
+	m_pFrameEncoder->copyToStaging(m_pTexture);
 	m_pD3D11DeviceContext->Flush();
 	if (m_pKeyedMutex)
 	{
@@ -292,13 +290,13 @@ void HyHMD::WaitForPresent()
 	}
 	//DriverLog("Frame rander done!");
 	UpdatePose();
-	m_pFrameCoder->NewFrameGo();
+	m_pFrameEncoder->NewFrameGo();
 	//m_pStagingTexture = nullptr;
 	//DriverLog("WaitForPresent end!");
 	/*
 	float flLastVsyncTimeInSeconds;
 	uint64_t nVsyncCounter;
-	m_pFrameCoder->GetInfoForNextVsync(&flLastVsyncTimeInSeconds, &nVsyncCounter);
+	m_pFrameEncoder->GetInfoForNextVsync(&flLastVsyncTimeInSeconds, &nVsyncCounter);
 
 	// Account for encoder/transmit latency.
 	// This is where the conversion from real to virtual vsync happens.
@@ -330,7 +328,7 @@ void HyHMD::WaitForPresent()
 
 bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
-	//m_pFrameCoder->GetInfoForNextVsync(pfSecondsSinceLastVsync, pulFrameCounter);
+	//m_pFrameEncoder->GetInfoForNextVsync(pfSecondsSinceLastVsync, pulFrameCounter);
 	/*
 	*pfSecondsSinceLastVsync = (float)(SystemTime::GetInSeconds() - m_flLastVsyncTimeInSeconds);
 	*pulFrameCounter = m_nVsyncCounter;
