@@ -56,7 +56,7 @@ EVRInitError HyHMD::Activate(uint32_t unObjectId)
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_ModelNumber_String, "HYHMD");
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_ManufacturerName_String, "HYPEREAL");
 	vr::VRProperties()->SetFloatProperty(m_ulPropertyContainer, Prop_UserIpdMeters_Float, 0.068);//soft ipd
-	vr::VRProperties()->SetFloatProperty(m_ulPropertyContainer, Prop_UserHeadToEyeDepthMeters_Float, 0.16f);
+	vr::VRProperties()->SetFloatProperty(m_ulPropertyContainer, Prop_UserHeadToEyeDepthMeters_Float, 0.0f);//Thanks to KOU.MIAO who fixed this.
 	vr::VRProperties()->SetFloatProperty(m_ulPropertyContainer, Prop_DisplayFrequency_Float, 90);
 	vr::VRProperties()->SetFloatProperty(m_ulPropertyContainer, Prop_SecondsFromVsyncToPhotons_Float, 0.0);
 	vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceOff_String, "{revive_hypereal}/icons/hypereal_headset_off.png");
@@ -366,10 +366,9 @@ void HyHMD::InitializePosition()
 	m_Pose.qDriverFromHeadRotation.y = 0.0;
 	m_Pose.qDriverFromHeadRotation.z = 0.0;
 
-	m_Pose.vecDriverFromHeadTranslation[0] =  0.00f;
-	m_Pose.vecDriverFromHeadTranslation[1] = -0.009f;
-	m_Pose.vecDriverFromHeadTranslation[2] = -0.148f;//seems good
-
+	m_Pose.vecDriverFromHeadTranslation[0] = 0.00f;//Thanks to KOU.MIAO who fixed this.
+	m_Pose.vecDriverFromHeadTranslation[1] = 0.00f;
+	m_Pose.vecDriverFromHeadTranslation[2] = 0.00f;
 	m_Pose.vecAcceleration[0] = 0.0;
 	m_Pose.vecAcceleration[1] = 0.0;
 	m_Pose.vecAcceleration[2] = 0.0;
