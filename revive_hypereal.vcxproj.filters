@@ -25,9 +25,7 @@
     <ClCompile Include="source\threadtools.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="source\FrameEncoder.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
+    <ClCompile Include="source\FrameCoder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\driverlog.h">
@@ -60,9 +58,7 @@
     <ClInclude Include="include\sharedstate.h">
       <Filter>header</Filter>
     </ClInclude>
-    <ClInclude Include="include\FrameEncoder.h">
-      <Filter>header</Filter>
-    </ClInclude>
+    <ClInclude Include="include\FrameCoder.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="libraries\x64\HvrAPI.lib" />
