@@ -172,7 +172,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)libraries\$(Platform)\driverlog.lib;advapi32.lib;d3d11.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;d3d11.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
