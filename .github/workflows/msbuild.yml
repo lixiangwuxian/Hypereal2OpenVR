@@ -51,7 +51,7 @@ jobs:
       # if: startsWith(github.ref, 'refs/tags/')
       with:
         token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-        tag_name: Auto Release ${{ github.ref }}
+        tag_name: AutoRelease
         name: Release ${{ github.ref }}
         body: New Release Activated By Update.
         draft: false
