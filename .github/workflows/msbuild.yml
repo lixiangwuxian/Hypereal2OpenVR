@@ -41,11 +41,9 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild ${{env.SOLUTION_FILE_PATH}} -t:rebuild -property:Configuration=${{env.BUILD_CONFIGURATION}}
-
-    - name: Clean
-      run: Remove-Item -Path .\revive_hypereal\bin\win64\driver_revive_hypereal.exp .\revive_hypereal\bin\win64\driver_revive_hypereal.lib .\revive_hypereal\bin\win64\driver_revive_hypereal.pdb -Recurse -Force
-
+      
     - name: Package
+      working-directory: ${{env.GITHUB_WORKSPACE}}
       run: Compress-Archive -Path .\revive_hypereal -Destination prebuild_driver.zip
         
     - name: Release
