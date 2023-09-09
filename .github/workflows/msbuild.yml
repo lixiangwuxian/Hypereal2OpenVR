@@ -41,4 +41,20 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild ${{env.SOLUTION_FILE_PATH}} -t:rebuild -property:Configuration=${{env.BUILD_CONFIGURATION}}
+    - name: Package
+      uses: edgarrc/action-7z@v1
+      with:
+        args: 7z a -t7z -mx=9 prebuild_driver.7z ./revive_hypereal
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        tag_name: ${{ github.ref }}
+        name: Release ${{ github.ref }}
+        body: New Release Activated By Update.
+        draft: false
+        prerelease: false
+        files: |
+          prebuild_driver.7z
+          LICENSE
         
