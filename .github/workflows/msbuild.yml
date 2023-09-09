@@ -43,9 +43,7 @@ jobs:
       run: msbuild ${{env.SOLUTION_FILE_PATH}} -t:rebuild -property:Configuration=${{env.BUILD_CONFIGURATION}}
 
     - name: Package
-      uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r prebuild_driver.zip ./revive_hypereal
+      run: Compress-Archive -Path ./revive_hypereal -Destination prebuild_driver.zip
         
     - name: Release
       uses: softprops/action-gh-release@v1
