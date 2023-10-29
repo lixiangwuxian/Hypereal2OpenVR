@@ -269,11 +269,6 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	m_pD3D11DeviceContext->CopySubresourceRegion(m_pFlushTexture, 0, 0, 0, 0, m_pTexture, 0, &box);
 	m_pFrameEncoder->copyToStaging(m_pTexture);
 	m_pD3D11DeviceContext->Flush();
-	if (m_pKeyedMutex)
-	{
-		m_pKeyedMutex->ReleaseSync(0);
-		m_pKeyedMutex->Release();
-	}
 }
 
 void HyHMD::WaitForPresent()
@@ -291,6 +286,12 @@ void HyHMD::WaitForPresent()
 	//DriverLog("Frame rander done!");
 	UpdatePose();
 	m_pFrameEncoder->NewFrameGo();
+
+	if (m_pKeyedMutex)
+	{
+		m_pKeyedMutex->ReleaseSync(0);
+		m_pKeyedMutex->Release();
+	}
 	//m_pStagingTexture = nullptr;
 	//DriverLog("WaitForPresent end!");
 	/*

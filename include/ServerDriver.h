@@ -35,10 +35,13 @@ private:
 
 	HyDevice* m_pHyTrackingDevice= nullptr;
 #ifdef USE_HMD
-	HyHMD* m_pHyHead=nullptr;
+	//HyHMD* m_pHyHead=nullptr;
+	std::shared_ptr<HyHMD>  m_pHyHead;
 #endif // USE_HMD
-	HyController* m_pHyLeftController = nullptr;
-	HyController* m_pHyRightController = nullptr;
+	std::shared_ptr<HyController> m_pHyLeftController;
+	std::shared_ptr<HyController> m_pHyRightController;
+	//HyController* m_pHyLeftController = nullptr;
+	//HyController* m_pHyRightController = nullptr;
 
 	HyTrackingState m_trackInform;
 	bool m_bEventThreadRunning;
