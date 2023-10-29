@@ -43,19 +43,15 @@ jobs:
     - name: Package
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: Compress-Archive -Path .\revive_hypereal -Destination prebuild_driver.zip
-
-    - name: "Gen Changelog"
-      id: build_changelog
-      uses: mikepenz/release-changelog-builder-action@{latest-release}
         
     - name: Release
       uses: softprops/action-gh-release@v1
       # if: startsWith(github.ref, 'refs/tags/')
       with:
         token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-        tag_name: ${{ github.sha }}
+        tag_name: prebuild_driver
         name: 自动编译 ${{ github.sha }}
-        body: "由提交${{ github.sha }}自动触发编译生成的预编译文件。\n${{steps.build_changelog.outputs.changelog}}"
+        body: "由提交${{ github.sha }}自动触发编译生成的预编译文件。"
         draft: false
         prerelease: true
         files: |
