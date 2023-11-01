@@ -18,6 +18,8 @@
 
 ---
 
+使用2.0以上版本的驱动，若出现无法正常显示的问题，请将steam vr更新至2.0.10以上版本
+
 魔改了部分Hypereal OpenVR Driver的字节码以阻止hvr加载手柄。
 
 安装方法：
@@ -46,6 +48,13 @@
 
 ### Changelog:
 
+#### 不定期修正
+
+最新版本请于[Release页面](https://github.com/lixiangwuxian/Hypereal2OpenVR/releases/tag/prebuild_driver)下载
+
+2023.9.8 来自KOU MIAO:修改HyHMD::Activate内Prop_UserHeadToEyeDepthMeters_Float的值为0，解决头部坐标系问题。
+
+
 #### 2022.7.1 - v0.4
 
 - 添加手柄连接状态检测；
@@ -57,11 +66,10 @@
 
 - 稳定呼出SteamVR菜单；
 - 正常显示第三个摄像头；
-- ~~驱动启动后自动结束Hy菜单界面进程（bkdrop.exe）；~~ 代码实现有误，待修正
 
 #### 2022.8.27 - v0.5.1
 
-- 驱动启动后自动结束Hy菜单界面进程（bkdrop.exe）（已修正）
+- 驱动启动后自动结束Hy菜单界面进程（bkdrop.exe）
 - 手柄图标现在与Hypereal官方SteamVR驱动图标相同
 
 #### 2022.9.22 - v1.0
