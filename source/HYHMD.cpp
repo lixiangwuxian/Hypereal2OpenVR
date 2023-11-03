@@ -234,14 +234,12 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	if (m_pTexture == nullptr) {
 		return;
 	}
-	/*
 	m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
 	if (m_pKeyedMutex->AcquireSync(0, 10) != S_OK)
 	{
 		m_pKeyedMutex->Release();
 		return;
 	}//go randering
-	*/
 	if (m_pFlushTexture == NULL)
 	{
 		D3D11_TEXTURE2D_DESC srcDesc;

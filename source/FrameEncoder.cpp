@@ -60,11 +60,13 @@ void FrameEncoder::VsyncLoop()
 		m_flLastVsyncTimeInSeconds = SystemTime::GetInSeconds();
 		m_nVsyncCounter++;
 		m_pHyGraphicsDevivce->Submit(0, &m_DispTexDesc, 1);
+		/*
 		if (m_pKeyedMutex) {
 			m_pKeyedMutex->ReleaseSync(0);
 			m_pKeyedMutex->Release();
 			DriverLog("Unlocked");
 		}
+		*/
 		//m_pProviderSem->release();
 	}
 }
