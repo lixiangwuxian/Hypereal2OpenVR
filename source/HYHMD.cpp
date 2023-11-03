@@ -378,34 +378,6 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 {
 	HyPose eyePoses[HY_EYE_MAX];
 	m_pDispHandle->GetEyePoses(HMDData.m_pose, nullptr, eyePoses);
-#ifdef DEBUG_COORDINATE
-
-	if (GetAsyncKeyState(VK_UP) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[2] += 0.003;
-		DriverLog("vecWorldFromDriverTranslation_[2]:%f", m_Pose.vecDriverFromHeadTranslation[2]);
-	}
-	if (GetAsyncKeyState(VK_DOWN) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[2] -= 0.003;
-		DriverLog("vecWorldFromDriverTranslation_[2]:%f", m_Pose.vecDriverFromHeadTranslation[2]);
-	}
-	if (GetAsyncKeyState(VK_LCONTROL) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[0] += 0.003;
-		DriverLog("vecDriverFromHeadTranslation[0]:%f", m_Pose.vecDriverFromHeadTranslation[0]);
-	}
-	if (GetAsyncKeyState(VK_LSHIFT) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[0] -= 0.003;
-		DriverLog("vecDriverFromHeadTranslation[0]:%f", m_Pose.vecDriverFromHeadTranslation[0]);
-	}
-	if (GetAsyncKeyState(VK_LEFT) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[1] += 0.003;
-		DriverLog("vecDriverFromHeadTranslation[1]:%f", m_Pose.vecDriverFromHeadTranslation[1]);
-	}
-	if (GetAsyncKeyState(VK_RIGHT) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[1] -= 0.003;
-		DriverLog("vecDriverFromHeadTranslation[1]:%f", m_Pose.vecDriverFromHeadTranslation[1]);
-	}
-
-#endif // DEBUG_COORDINATE
 	m_Pose.result = vr::TrackingResult_Running_OK;
 	m_Pose.poseIsValid = true;
 	m_Pose.deviceIsConnected = true;
