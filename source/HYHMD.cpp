@@ -203,7 +203,7 @@ DistortionCoordinates_t HyHMD::ComputeDistortion(EVREye eEye, float fU, float fV
 	return coordinates;
 }
 
-ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
+ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)//tool func
 {
 	if (!hSharedTexture)
 		return NULL;
@@ -230,7 +230,6 @@ ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
 void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSize)
 {
 	m_pTexture = GetSharedTexture((HANDLE)pPresentInfo->backbufferTextureHandle);
-	m_pKeyedMutex = NULL;
 	if (m_pTexture == nullptr) {
 		return;
 	}
@@ -328,19 +327,10 @@ void HyHMD::WaitForPresent()
 
 bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
-	//m_pFrameEncoder->GetInfoForNextVsync(pfSecondsSinceLastVsync, pulFrameCounter);
-	/*
-	*pfSecondsSinceLastVsync = (float)(SystemTime::GetInSeconds() - m_flLastVsyncTimeInSeconds);
-	*pulFrameCounter = m_nVsyncCounter;
-	DriverLog("pfSecondsSinceLastVsync:%f pulFrameCounter:%llu", pfSecondsSinceLastVsync, m_nVsyncCounter);
-	return true;
-	*/
 	*pfSecondsSinceLastVsync = 0;
 	*pulFrameCounter = 0;
 	return false;
 }
-
-//private
 
 void HyHMD::InitializePosition()
 {
@@ -422,7 +412,7 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 	m_Pose.vecVelocity[2] = HMDData.m_linearVelocity.z;
 	//m_Pose.vecAngularVelocity[0] = HMDData.m_angularVelocity.x;
 	//m_Pose.vecAngularVelocity[1] = HMDData.m_angularVelocity.y;
-	//m_Pose.vecAngularVelocity[2] = HMDData.m_angularVelocity.z;//Avoid shaking
+	//m_Pose.vecAngularVelocity[2] = HMDData.m_angularVelocity.z;//Avoid shaking, who knows why...
 	m_Pose.vecAngularAcceleration[0] = HMDData.m_angularAcceleration.x;
 	m_Pose.vecAngularAcceleration[1] = HMDData.m_angularAcceleration.y;
 	m_Pose.vecAngularAcceleration[2] = HMDData.m_angularAcceleration.z;

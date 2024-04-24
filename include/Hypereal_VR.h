@@ -253,7 +253,7 @@ enum HyTouch
 */
 enum HyFlagBit
 {
-	HyDeviceCreateFlag_DontSwitchDefaultAudio = 1,  /**< set this flag if the app don't need to switch windows default auido device */
+	HyDeviceCreateFlag_DontSwitchDefaultAudio = 1,  /**< set this flag if the app don't need to switch windows default audio device */
 };
 
 /**
