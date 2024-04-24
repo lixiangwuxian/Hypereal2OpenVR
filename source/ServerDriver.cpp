@@ -45,16 +45,19 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext* DriverContext) {
 	}
 
 #ifdef USE_HMD
-	m_pHyHead = new HyHMD("HYHMD@LXWX",m_pHyTrackingDevice);
+	//m_pHyHead = new HyHMD("HYHMD@LXWX",m_pHyTrackingDevice);
+	m_pHyHead = std::make_shared<HyHMD>("HYHMD@LXWX", m_pHyTrackingDevice);
 #endif // USE_HMD
-	m_pHyLeftController = new HyController("Lctr@LXWX", TrackedControllerRole_LeftHand,m_pHyTrackingDevice);
-	m_pHyRightController = new HyController("Rctr@LXWX", TrackedControllerRole_RightHand,m_pHyTrackingDevice);
+	//m_pHyLeftController = new HyController("Lctr@LXWX", TrackedControllerRole_LeftHand,m_pHyTrackingDevice);
+	//m_pHyRightController = new HyController("Rctr@LXWX", TrackedControllerRole_RightHand,m_pHyTrackingDevice);
+	m_pHyLeftController = std::make_shared<HyController>("Lctr@LXWX", TrackedControllerRole_LeftHand, m_pHyTrackingDevice);
+	m_pHyRightController = std::make_shared<HyController>("Rctr@LXWX", TrackedControllerRole_RightHand, m_pHyTrackingDevice);
 #ifdef USE_HMD
 	m_pframeID=m_pHyHead->getFrameIDptr();
-	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyHead->GetSerialNumber().c_str(), vr::TrackedDeviceClass_HMD, m_pHyHead);
+	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyHead->GetSerialNumber().c_str(), vr::TrackedDeviceClass_HMD, m_pHyHead.get());
 #endif // USE_HMD
-	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyLeftController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_pHyLeftController);
-	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyRightController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_pHyRightController);
+	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyLeftController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_pHyLeftController.get());
+	vr::VRServerDriverHost()->TrackedDeviceAdded(m_pHyRightController->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_pHyRightController.get());
 
 	m_bEventThreadRunning = false;
 	if (!m_bEventThreadRunning){
@@ -144,10 +147,10 @@ void ServerDriver::Cleanup() {
 	m_bEventThreadRunning = false;
 	delete m_pHyTrackingDevice;
 #ifdef USE_HMD
-	delete m_pHyHead;
+	m_pHyHead.reset();
 #endif // USE_HMD
-	delete m_pHyLeftController;
-	delete m_pHyRightController;
+	m_pHyLeftController.reset();
+	m_pHyRightController.reset();
 	VR_CLEANUP_SERVER_DRIVER_CONTEXT();
 	HyShutdown();
 }

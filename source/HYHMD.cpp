@@ -233,14 +233,12 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	if (m_pTexture == nullptr) {
 		return;
 	}
-	/*
 	m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
 	if (m_pKeyedMutex->AcquireSync(0, 10) != S_OK)
 	{
 		m_pKeyedMutex->Release();
 		return;
 	}//go randering
-	*/
 	if (m_pFlushTexture == NULL)
 	{
 		D3D11_TEXTURE2D_DESC srcDesc;
@@ -268,11 +266,6 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 	m_pD3D11DeviceContext->CopySubresourceRegion(m_pFlushTexture, 0, 0, 0, 0, m_pTexture, 0, &box);
 	m_pFrameEncoder->copyToStaging(m_pTexture);
 	m_pD3D11DeviceContext->Flush();
-	if (m_pKeyedMutex)
-	{
-		m_pKeyedMutex->ReleaseSync(0);
-		m_pKeyedMutex->Release();
-	}
 }
 
 void HyHMD::WaitForPresent()
@@ -290,6 +283,12 @@ void HyHMD::WaitForPresent()
 	//DriverLog("Frame rander done!");
 	UpdatePose();
 	m_pFrameEncoder->NewFrameGo();
+
+	if (m_pKeyedMutex)
+	{
+		m_pKeyedMutex->ReleaseSync(0);
+		m_pKeyedMutex->Release();
+	}
 	//m_pStagingTexture = nullptr;
 	//DriverLog("WaitForPresent end!");
 	/*
@@ -369,34 +368,6 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 {
 	HyPose eyePoses[HY_EYE_MAX];
 	m_pDispHandle->GetEyePoses(HMDData.m_pose, nullptr, eyePoses);
-#ifdef DEBUG_COORDINATE
-
-	if (GetAsyncKeyState(VK_UP) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[2] += 0.003;
-		DriverLog("vecWorldFromDriverTranslation_[2]:%f", m_Pose.vecDriverFromHeadTranslation[2]);
-	}
-	if (GetAsyncKeyState(VK_DOWN) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[2] -= 0.003;
-		DriverLog("vecWorldFromDriverTranslation_[2]:%f", m_Pose.vecDriverFromHeadTranslation[2]);
-	}
-	if (GetAsyncKeyState(VK_LCONTROL) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[0] += 0.003;
-		DriverLog("vecDriverFromHeadTranslation[0]:%f", m_Pose.vecDriverFromHeadTranslation[0]);
-	}
-	if (GetAsyncKeyState(VK_LSHIFT) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[0] -= 0.003;
-		DriverLog("vecDriverFromHeadTranslation[0]:%f", m_Pose.vecDriverFromHeadTranslation[0]);
-	}
-	if (GetAsyncKeyState(VK_LEFT) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[1] += 0.003;
-		DriverLog("vecDriverFromHeadTranslation[1]:%f", m_Pose.vecDriverFromHeadTranslation[1]);
-	}
-	if (GetAsyncKeyState(VK_RIGHT) != 0) {
-		m_Pose.vecDriverFromHeadTranslation[1] -= 0.003;
-		DriverLog("vecDriverFromHeadTranslation[1]:%f", m_Pose.vecDriverFromHeadTranslation[1]);
-	}
-
-#endif // DEBUG_COORDINATE
 	m_Pose.result = vr::TrackingResult_Running_OK;
 	m_Pose.poseIsValid = true;
 	m_Pose.deviceIsConnected = true;
