@@ -75,7 +75,7 @@ bool FrameEncoder::copyToStaging(ID3D11Texture2D* pTexture)
 	if (FAILED(m_pD3D11Device->CreateTexture2D(&stagingTextureDesc, NULL, &m_pStagingTexture)))
 	{
 		DriverLog("Create m_pFlushTexture failed.");
-		return;
+		return false;
 	}
 	m_pD3D11DeviceContext->Map(m_pStagingTexture, 0, D3D11_MAP_WRITE, 0, &mapped_w);
 	for (int y = 0; y < mapped_r.DepthPitch; y++) {
