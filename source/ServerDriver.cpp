@@ -71,60 +71,60 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext* DriverContext) {
 void ErrorAlarm(HyResult result) {
 	switch (result){
 	case hyError:
-		MessageBox(NULL, L"hyError\n²»Çå³þÊ²Ã´Ô­Òòµ«ÊÇ±¨´íÁË\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError\nï¿½ï¿½ï¿½ï¿½ï¿½Ê²Ã´Ô­ï¿½ï¿½ï¿½Ç±ï¿½ï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_NeedStartup:
-		MessageBox(NULL, L"hyError_NeedStartup\nÎ´³õÊ¼»¯\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_NeedStartup\nÎ´ï¿½ï¿½Ê¼ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_DeviceNotStart:
-		MessageBox(NULL, L"hyError_DeviceNotStart\nÉè±¸Î´Æô¶¯\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_DeviceNotStart\nï¿½è±¸Î´ï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_InvalidHeadsetOrientation:
-		MessageBox(NULL, L"hyError_InvalidHeadsetOrientation\nÎÞÐ§µÄÍ·ÏÔËÄÔªÊý×ø±ê\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_InvalidHeadsetOrientation\nï¿½ï¿½Ð§ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_RenderNotCreated:
-		MessageBox(NULL, L"hyError_RenderNotCreated\nÎ´´´½¨äÖÈ¾×é¼þ\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_RenderNotCreated\nÎ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¾ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_TextureNotCreated:
-		MessageBox(NULL, L"hyError_TextureNotCreated\nÎ´´´½¨²ÄÖÊ\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_TextureNotCreated\nÎ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_DisplayLost:
-		MessageBox(NULL, L"hyError_InvalidParameter\nÏÔÊ¾½Ó¿Ú¶ªÊ§\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_InvalidParameter\nï¿½ï¿½Ê¾ï¿½Ó¿Ú¶ï¿½Ê§\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_NoHmd:
-		MessageBox(NULL, L"hyError_NoHmd\nÎ´·¢ÏÖÍ·ÏÔ\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_NoHmd\nÎ´ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_DeviceNotConnected:
-		MessageBox(NULL, L"hyError_DeviceNotConnected\nÉè±¸Î´Á¬½Ó\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_DeviceNotConnected\nï¿½è±¸Î´ï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_ServiceConnection:
-		MessageBox(NULL, L"hyError_ServiceConnection\n·þÎñÁ¬½Ó´íÎó\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_ServiceConnection\nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó´ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_ServiceError:
-		MessageBox(NULL, L"hyError_ServiceError\n·þÎñ´íÎó\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_ServiceError\nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_InvalidParameter:
-		MessageBox(NULL, L"hyError_InvalidParameter\nÎÞÐ§²ÎÊý\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_InvalidParameter\nï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_NoCalibration:
-		MessageBox(NULL, L"hyError_NoCalibration\nÐèÒªÔÚHY¿Í»§¶Ë½øÐÐÐ£×¼\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_NoCalibration\nï¿½ï¿½Òªï¿½ï¿½HYï¿½Í»ï¿½ï¿½Ë½ï¿½ï¿½ï¿½Ð£×¼\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_NotImplemented:
-		MessageBox(NULL, L"hyError_NotImplemented\nÎ´ÊµÀý»¯\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_NotImplemented\nÎ´Êµï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_InvalidClientType:
-		MessageBox(NULL, L"hyError_InvalidClientType\nÎÞÐ§µÄ¿Í»§¶ËÀàÐÍ\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_InvalidClientType\nï¿½ï¿½Ð§ï¿½Ä¿Í»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_BufferTooSmall:
-		MessageBox(NULL, L"hyError_BufferTooSmall\n»º³åÇø¹ýÐ¡\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_BufferTooSmall\nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	case hyError_InvalidState:
-		MessageBox(NULL, L"hyError_InvalidState\nÉè±¸×´Ì¬ÎÞÐ§\nÇëÈ·ÈÏÉè±¸Á¬½Ó×´Ì¬²¢ÊÖ¶¯ÖØÆôSteamVR", L"´íÎó", MB_OK);
+		MessageBox(NULL, L"hyError_InvalidState\nï¿½è±¸×´Ì¬ï¿½ï¿½Ð§\nï¿½ï¿½È·ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½SteamVR", L"ï¿½ï¿½ï¿½ï¿½", MB_OK);
 		break;
 	default:
 		break;
 	}
-	if (result>=100&&MessageBox(NULL, L"µã»÷È·¶¨¿ÉÒÔÒ»¼ü½áÊøhyperealËùÓÐ½ø³Ì", L"°ïÖú", MB_YESNO) == IDYES) {
+	if (result>=100&&MessageBox(NULL, L"ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½hyperealï¿½ï¿½ï¿½Ð½ï¿½ï¿½ï¿½", L"ï¿½ï¿½ï¿½ï¿½", MB_YESNO) == IDYES) {
 		while (killProcessByName(L"bkdrop.exe")|| killProcessByName(L"HvrService.exe")|| killProcessByName(L"HyperealVR.exe") || killProcessByName(L"HvrCaptain.exe") || killProcessByName(L"HvrPlatformService.exe")){
 			Sleep(50);
 		}
@@ -137,7 +137,7 @@ void ErrorAlarm(HyResult result) {
 void Boardcast() {
 	const TCHAR szOperation[] = _T("open");
 	wchar_t* szAddress = (wchar_t*)L"https://github.com/lixiangwuxian/HyperealDriverTest";
-	int result=MessageBoxW(NULL, L"µã»÷È·¶¨´ò¿ªÇý¶¯Ö÷Ò³\nCreated By lixiangwuxian@github\n", L"ÌáÊ¾", MB_OK|MB_OKCANCEL);
+	int result=MessageBoxW(NULL, L"ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³\nCreated By lixiangwuxian@github\n", L"ï¿½ï¿½Ê¾", MB_OK|MB_OKCANCEL);
 	if (result != IDOK) {
 		ShellExecute(NULL, szOperation, szAddress, NULL, NULL, SW_SHOWNORMAL);
 	}
@@ -170,8 +170,8 @@ void ServerDriver::UpdateHaptic(VREvent_t& eventHandle)
 		float amplitude=0, duration=0;
 		VREvent_HapticVibration_t data = eventHandle.data.hapticVibration;
 		duration = fmaxf(15,data.fDurationSeconds*1000);
-		amplitude = fmaxf(0.3, data.fAmplitude);
-		amplitude = fminf(1, data.fAmplitude);
+		amplitude = fmaxf(0.3f, data.fAmplitude);
+		amplitude = fminf(1.0f, amplitude);
 		if (m_pHyLeftController->GetPropertyContainer() == data.containerHandle) {
 			m_pHyTrackingDevice->SetControllerVibration(HY_SUBDEV_CONTROLLER_LEFT,duration, amplitude);
 		}

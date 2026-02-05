@@ -54,7 +54,7 @@ EVRInitError HyController::Activate(uint32_t unObjectId)
 		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceAlertLow_String, "{revive_hypereal}/icons/hypereal_right_controller_ready_low.png");
 		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceStandbyAlert_String, "{revive_hypereal}/icons/hypereal_right_controller_ready_alert.png");
 	}
-	//ÊÖ±úÀàÐÍ
+	//ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½
 	vr::VRProperties()->SetInt32Property(m_ulPropertyContainer, Prop_ControllerRoleHint_Int32, m_Type);
 	ETrackedPropertyError erro;
 	int DevClass = vr::VRProperties()->GetInt32Property(m_ulPropertyContainer, Prop_ControllerRoleHint_Int32, &erro);
@@ -178,7 +178,7 @@ void HyController::SendButtonUpdate(HyInputState inputState)
 	float TriggerValue = 0.0f;
 	float GripValue = 0.0f;
 	
-	if (m_Pose.deviceIsConnected = false) {
+	if (m_Pose.deviceIsConnected == false) {
 		return;//avoid noise
 	}
 
@@ -204,7 +204,7 @@ void HyController::SendButtonUpdate(HyInputState inputState)
 	else {
 		vr::VRDriverInput()->UpdateBooleanComponent(m_grip, false, 0);
 	}
-	vr::VRDriverInput()->UpdateBooleanComponent(m_touch, (bool)(HY_TOUCH_TOUCHPAD_LEFT + HY_TOUCH_TOUCHPAD_RIGHT & inputState.m_touches), 0);
+	vr::VRDriverInput()->UpdateBooleanComponent(m_touch, (bool)((HY_TOUCH_TOUCHPAD_LEFT | HY_TOUCH_TOUCHPAD_RIGHT) & inputState.m_touches), 0);
 
 	vr::VRDriverInput()->UpdateScalarComponent(m_trigger_value, inputState.m_indexTrigger, 0);
 	vr::VRDriverInput()->UpdateScalarComponent(m_trackpadx, inputState.m_touchpad.x*1.1 , 0);
@@ -264,12 +264,15 @@ void HyController::UpdatePose(HyTrackingState ctrData)
 
 void HyController::UpdateBattery(int value)
 {
-	bool ifBatteryEmpty = false;
-	if (value <= 1) {//we only got 0,1,2. 0 for empty, 1 for low, 2 for normal
-		ifBatteryEmpty = true;
+	// value: 0 for empty, 1 for low, 2 for normal
+	vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DeviceProvidesBatteryStatus_Bool, true);
+
+	// Convert to percentage: 0->0.0, 1->0.3, 2->1.0
+	float batteryPercent = 0.0f;
+	if (value == 1) {
+		batteryPercent = 0.3f;
+	} else if (value >= 2) {
+		batteryPercent = 1.0f;
 	}
-	else {
-		ifBatteryEmpty = false;
-	}
-	vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DeviceProvidesBatteryStatus_Bool, ifBatteryEmpty);
+	vr::VRProperties()->SetFloatProperty(m_ulPropertyContainer, Prop_DeviceBatteryPercentage_Float, batteryPercent);
 }

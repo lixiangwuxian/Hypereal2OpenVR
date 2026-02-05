@@ -32,7 +32,41 @@ HyHMD::HyHMD(std::string id, HyDevice* Device) {
 }
 
 HyHMD::~HyHMD(){
-	m_pDispHandle->Release();
+	// Release FrameEncoder
+	if (m_pFrameEncoder) {
+		delete m_pFrameEncoder;
+		m_pFrameEncoder = nullptr;
+	}
+
+	// Release shared texture cache
+	for (auto& entry : m_SharedTextureCache) {
+		if (entry.m_pTexture) {
+			entry.m_pTexture->Release();
+		}
+	}
+	m_SharedTextureCache.clear();
+
+	// Release D3D11 resources
+	if (m_pFlushTexture) {
+		m_pFlushTexture->Release();
+		m_pFlushTexture = nullptr;
+	}
+
+	// Release Hypereal graphics context
+	if (m_pDispHandle) {
+		m_pDispHandle->Release();
+		m_pDispHandle = nullptr;
+	}
+
+	// Release D3D11 device context and device
+	if (m_pD3D11DeviceContext) {
+		m_pD3D11DeviceContext->Release();
+		m_pD3D11DeviceContext = nullptr;
+	}
+	if (m_pD3D11Device) {
+		m_pD3D11Device->Release();
+		m_pD3D11Device = nullptr;
+	}
 }
 
 void HyHMD::initDisplayConfig() {
@@ -107,7 +141,7 @@ DriverPose_t HyHMD::GetPose()
 
 PropertyContainerHandle_t HyHMD::GetPropertyContainer()
 {
-	return PropertyContainerHandle_t();
+	return m_ulPropertyContainer;
 }
 
 std::string HyHMD::GetSerialNumber()
@@ -229,19 +263,33 @@ ID3D11Texture2D* HyHMD::GetSharedTexture(HANDLE hSharedTexture)
 
 void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSize)
 {
+	// Store frame ID from compositor
+	m_nCurrentFrameId = pPresentInfo->nFrameId;
+
+	// Get shared texture
 	m_pTexture = GetSharedTexture((HANDLE)pPresentInfo->backbufferTextureHandle);
-	m_pKeyedMutex = NULL;
 	if (m_pTexture == nullptr) {
+		DriverLog("Present: Failed to get shared texture");
 		return;
 	}
-	m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
-	if (m_pKeyedMutex->AcquireSync(0, 10) != S_OK)
-	{
-		m_pKeyedMutex->Release();
-		return;
-	}//go randering
-	if (m_pFlushTexture == NULL)
-	{
+
+	// Wait for previous encode to finish before accessing shared D3D context
+	m_pFrameEncoder->WaitForEncode();
+
+	// Acquire sync on shared texture
+	m_pKeyedMutex = nullptr;
+	HRESULT hr = m_pTexture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
+	if (SUCCEEDED(hr) && m_pKeyedMutex != nullptr) {
+		if (m_pKeyedMutex->AcquireSync(0, 10) != S_OK) {
+			m_pKeyedMutex->Release();
+			m_pKeyedMutex = nullptr;
+			DriverLog("Present: AcquireSync failed");
+			return;
+		}
+	}
+
+	// Create flush texture for GPU sync (small staging texture to block on)
+	if (m_pFlushTexture == nullptr) {
 		D3D11_TEXTURE2D_DESC srcDesc;
 		m_pTexture->GetDesc(&srcDesc);
 
@@ -257,86 +305,86 @@ void HyHMD::Present(const PresentInfo_t* pPresentInfo, uint32_t unPresentInfoSiz
 		flushTextureDesc.BindFlags = 0;
 		flushTextureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 
-		if (FAILED(m_pD3D11Device->CreateTexture2D(&flushTextureDesc, NULL, &m_pFlushTexture)))
-		{
-			DriverLog("Create m_pFlushTexture failed.");
+		if (FAILED(m_pD3D11Device->CreateTexture2D(&flushTextureDesc, NULL, &m_pFlushTexture))) {
+			DriverLog("Present: Failed to create flush texture");
+			if (m_pKeyedMutex) {
+				m_pKeyedMutex->ReleaseSync(0);
+				m_pKeyedMutex->Release();
+				m_pKeyedMutex = nullptr;
+			}
 			return;
 		}
 	}
+
+	// Copy a single pixel so we can block until rendering is finished in WaitForPresent
 	D3D11_BOX box = { 0, 0, 0, 1, 1, 1 };
 	m_pD3D11DeviceContext->CopySubresourceRegion(m_pFlushTexture, 0, 0, 0, 0, m_pTexture, 0, &box);
-	m_pFrameEncoder->copyToStaging(m_pTexture);
 	m_pD3D11DeviceContext->Flush();
+
+	// Copy entire texture to staging for encoder
+	m_pFrameEncoder->CopyToStaging(m_pTexture);
+	m_pD3D11DeviceContext->Flush();
+
+	// Release mutex immediately after copying (following Valve's pattern)
+	if (m_pKeyedMutex) {
+		m_pKeyedMutex->ReleaseSync(0);
+		m_pKeyedMutex->Release();
+		m_pKeyedMutex = nullptr;
+	}
 }
 
 void HyHMD::WaitForPresent()
 {
-	//DriverLog("WaitForPresent start!");
-	if (m_pFlushTexture)
-	{
-		//stuck here
+	// First, wait for GPU rendering to finish by mapping the flush texture
+	if (m_pFlushTexture) {
 		D3D11_MAPPED_SUBRESOURCE mapped = { 0 };
-		if (SUCCEEDED(m_pD3D11DeviceContext->Map(m_pFlushTexture, 0, D3D11_MAP_READ,0, &mapped)))
-		{
+		if (SUCCEEDED(m_pD3D11DeviceContext->Map(m_pFlushTexture, 0, D3D11_MAP_READ, 0, &mapped))) {
 			m_pD3D11DeviceContext->Unmap(m_pFlushTexture, 0);
 		}
 	}
-	//DriverLog("Frame rander done!");
+
+	// Update HMD pose
 	UpdatePose();
-	m_pFrameEncoder->NewFrameGo();
 
-	if (m_pKeyedMutex)
-	{
-		m_pKeyedMutex->ReleaseSync(0);
-		m_pKeyedMutex->Release();
-	}
-	//m_pStagingTexture = nullptr;
-	//DriverLog("WaitForPresent end!");
-	/*
-	float flLastVsyncTimeInSeconds;
+	// Calculate the vsync time for this frame
+	double flVsyncTimeInSeconds = m_flLastVsyncTimeInSeconds + m_flAdditionalLatencyInSeconds;
+
+	// Signal encoder thread that a new frame is ready
+	m_pFrameEncoder->NewFrameReady(m_nCurrentFrameId, flVsyncTimeInSeconds);
+
+	// Get timing info from encoder
+	double flLastVsyncTimeInSeconds;
 	uint64_t nVsyncCounter;
-	m_pFrameEncoder->GetInfoForNextVsync(&flLastVsyncTimeInSeconds, &nVsyncCounter);
+	m_pFrameEncoder->GetTimingInfo(&flLastVsyncTimeInSeconds, &nVsyncCounter);
 
-	// Account for encoder/transmit latency.
-	// This is where the conversion from real to virtual vsync happens.
-	//flLastVsyncTimeInSeconds -= m_flAdditionalLatencyInSeconds;
+	// Account for encoder/transmit latency
+	flLastVsyncTimeInSeconds -= m_flAdditionalLatencyInSeconds;
 
-	float flFrameIntervalInSeconds = 0.01111;
+	// Realign our last time interval given updated timing reference
+	int32_t nTimeRefToLastVsyncFrames = (int32_t)round(
+		(m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds) / kFrameIntervalInSeconds
+	);
+	m_flLastVsyncTimeInSeconds = flLastVsyncTimeInSeconds + kFrameIntervalInSeconds * nTimeRefToLastVsyncFrames;
 
-	// Realign our last time interval given updated timing reference.
-	DriverLog("m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds:%f", m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds);
-	int32_t nTimeRefToLastVsyncFrames =(int32_t)roundf(float(m_flLastVsyncTimeInSeconds - flLastVsyncTimeInSeconds) / flFrameIntervalInSeconds);
-	DriverLog("nTimeRefToLastVsyncFrames:%d", nTimeRefToLastVsyncFrames);
-	m_flLastVsyncTimeInSeconds = flLastVsyncTimeInSeconds + flFrameIntervalInSeconds * nTimeRefToLastVsyncFrames;
-	DriverLog("m_flLastVsyncTimeInSeconds:%lf", m_flLastVsyncTimeInSeconds);
-
+	// Get current time
 	double flNow = SystemTime::GetInSeconds();
-	DriverLog("flNow:%lf", flNow);
-	DriverLog("flNow - m_flLastVsyncTimeInSeconds:%f", flNow - m_flLastVsyncTimeInSeconds);
-	// Find the next frame interval (keeping in mind we may get here during running start).
-	int32_t nLastVsyncToNextVsyncFrames =(int32_t)(float(flNow - m_flLastVsyncTimeInSeconds) / flFrameIntervalInSeconds);
-	nLastVsyncToNextVsyncFrames = max(nLastVsyncToNextVsyncFrames, 0)+1;
-	DriverLog("nLastVsyncToNextVsyncFrames:%d", nLastVsyncToNextVsyncFrames);
 
-	// And store it for use in GetTimeSinceLastVsync (below) and updating our next frame.
-	m_flLastVsyncTimeInSeconds += flFrameIntervalInSeconds * nLastVsyncToNextVsyncFrames;
+	// Find the next frame interval
+	int32_t nLastVsyncToNextVsyncFrames = (int32_t)(
+		(flNow - m_flLastVsyncTimeInSeconds) / kFrameIntervalInSeconds
+	);
+	nLastVsyncToNextVsyncFrames = max(nLastVsyncToNextVsyncFrames, 0) + 1;
+
+	// Store for use in GetTimeSinceLastVsync
+	m_flLastVsyncTimeInSeconds += kFrameIntervalInSeconds * nLastVsyncToNextVsyncFrames;
 	m_nVsyncCounter = nVsyncCounter + nTimeRefToLastVsyncFrames + nLastVsyncToNextVsyncFrames;
-	DriverLog("pulFrameCounter:%llu", m_nVsyncCounter);
-	*/
 }
 
 bool HyHMD::GetTimeSinceLastVsync(float* pfSecondsSinceLastVsync, uint64_t* pulFrameCounter)
 {
-	//m_pFrameEncoder->GetInfoForNextVsync(pfSecondsSinceLastVsync, pulFrameCounter);
-	/*
 	*pfSecondsSinceLastVsync = (float)(SystemTime::GetInSeconds() - m_flLastVsyncTimeInSeconds);
 	*pulFrameCounter = m_nVsyncCounter;
-	DriverLog("pfSecondsSinceLastVsync:%f pulFrameCounter:%llu", pfSecondsSinceLastVsync, m_nVsyncCounter);
 	return true;
-	*/
-	*pfSecondsSinceLastVsync = 0;
-	*pulFrameCounter = 0;
-	return false;
 }
 
 //private
@@ -411,7 +459,7 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 		m_Pose.poseIsValid = false;
 		return m_Pose;
 	}*/
-	//¶ª×·×Ù²»»ÒÆÁ
+	//ï¿½ï¿½×·ï¿½Ù²ï¿½ï¿½ï¿½ï¿½ï¿½
 	return m_Pose;
 }
 

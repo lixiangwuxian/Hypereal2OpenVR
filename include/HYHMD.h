@@ -62,38 +62,38 @@ private:
 	void InitializePosition();
 	ID3D11Texture2D* GetSharedTexture(HANDLE hSharedTexture);
 	DriverPose_t GetPose(HyTrackingState ctrData);
-	HyDevice* m_pHMDDevice;
+	HyDevice* m_pHMDDevice = nullptr;
 	vr::DriverPose_t  m_Pose;
-	vr::TrackedDeviceIndex_t m_unObjectId;
+	vr::TrackedDeviceIndex_t m_unObjectId = 0;
 	vr::PropertyContainerHandle_t m_ulPropertyContainer;
 	std::string m_sSerialNumber;
 	std::string m_sModelNumber;
 	ETrackedControllerRole  m_Type;
 	//for display component..
-	int32_t m_nWindowX;
-	int32_t m_nWindowY;
-	int32_t m_nWindowWidth;
-	int32_t m_nWindowHeight;
-	int32_t m_nRenderWidth;
-	int32_t m_nRenderHeight;
+	int32_t m_nWindowX = 0;
+	int32_t m_nWindowY = 0;
+	int32_t m_nWindowWidth = 0;
+	int32_t m_nWindowHeight = 0;
+	int32_t m_nRenderWidth = 0;
+	int32_t m_nRenderHeight = 0;
 	//virtual display
 	SharedTextures_t m_SharedTextureCache;
 	float m_flAdditionalLatencyInSeconds = 0.00f;
-	clock_t m_tLastVsyncTime;
-	clock_t m_tLastSubmitTime;
-	uint32_t m_uDropFrames;
+	uint32_t m_uDropFrames = 0;
 	volatile uint32_t m_nFrameCounter = 0;
-	HyGraphicsContext* m_pDispHandle;
+	HyGraphicsContext* m_pDispHandle = nullptr;
 	HyGraphicsContextDesc m_DispDesc;
-	double m_flLastVsyncTimeInSeconds=0;
-	uint64_t m_nVsyncCounter;
-	//HyTextureDesc m_DispTexDesc;
-	FrameEncoder* m_pFrameEncoder;
-	ID3D11Device* m_pD3D11Device;
-	ID3D11DeviceContext* m_pD3D11DeviceContext;
-	ID3D11Texture2D* m_pTexture;
-	ID3D11Texture2D* m_pFlushTexture;
-	ID3D11Texture2D* m_pStagingTexture;
-	IDXGIKeyedMutex* m_pKeyedMutex;
-	//clock_t pre;
+
+	// VSync timing (following Valve's virtual_display pattern)
+	double m_flLastVsyncTimeInSeconds = 0.0;
+	uint64_t m_nVsyncCounter = 0;
+	uint64_t m_nCurrentFrameId = 0;
+	static constexpr double kFrameIntervalInSeconds = 1.0 / 90.0;  // 90Hz
+
+	FrameEncoder* m_pFrameEncoder = nullptr;
+	ID3D11Device* m_pD3D11Device = nullptr;
+	ID3D11DeviceContext* m_pD3D11DeviceContext = nullptr;
+	ID3D11Texture2D* m_pTexture = nullptr;
+	ID3D11Texture2D* m_pFlushTexture = nullptr;
+	IDXGIKeyedMutex* m_pKeyedMutex = nullptr;
 };
