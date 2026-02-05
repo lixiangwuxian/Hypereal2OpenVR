@@ -54,7 +54,7 @@ EVRInitError HyController::Activate(uint32_t unObjectId)
 		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceAlertLow_String, "{revive_hypereal}/icons/hypereal_right_controller_ready_low.png");
 		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_NamedIconPathDeviceStandbyAlert_String, "{revive_hypereal}/icons/hypereal_right_controller_ready_alert.png");
 	}
-	//ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½
+	//ÊÖ±úÀàÐÍ
 	vr::VRProperties()->SetInt32Property(m_ulPropertyContainer, Prop_ControllerRoleHint_Int32, m_Type);
 	ETrackedPropertyError erro;
 	int DevClass = vr::VRProperties()->GetInt32Property(m_ulPropertyContainer, Prop_ControllerRoleHint_Int32, &erro);

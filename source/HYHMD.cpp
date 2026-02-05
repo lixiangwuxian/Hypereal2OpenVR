@@ -459,7 +459,7 @@ DriverPose_t HyHMD::GetPose(HyTrackingState HMDData)
 		m_Pose.poseIsValid = false;
 		return m_Pose;
 	}*/
-	//ï¿½ï¿½×·ï¿½Ù²ï¿½ï¿½ï¿½ï¿½ï¿½
+	//¶ª×·×Ù²»»ÒÆÁ
 	return m_Pose;
 }
 
